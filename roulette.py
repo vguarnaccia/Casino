@@ -5,6 +5,7 @@ It also allows the player to collect statistics and analyze their effectiveness"
 
 from collections import namedtuple
 import logging
+
 # for tips on logging go to
 # http://docs.python-guide.org/en/latest/writing/logging/
 LOGGER = logging.getLogger(__name__)
@@ -53,48 +54,41 @@ TABLE = {
     '36': Layout('red', 'even', 'third 12', 'high', 3),
 }
 
-def test_full_TABLE():
-    assert '00' in TABLE, 'missing 00'
-    for bet in range(37):
-        assert str(bet) in TABLE, 'missing bet %s' % bet
 
-def test_TABLE_pairs():
-    """test ensure that TABLE key-value pairs have valid attributes
-    Does not test if color is correct.
+class Outcome(object):
+    """Store the name of a possible outcome and its odds
+
+    Attributes:
+        name (str): Name of the outcome
+        Odds (int): Denominator for odds, i.e. odds of 17:1 means Odds = 17
     """
-    for k, v in TABLE.items():
-        if type(v).__name__ == 'Layout':
-            assert v.color in ('red', 'black'), 'Invalid color %s' % k
-            evenness = 'even' if int(k) % 2 == 0 else 'odd'
-            assert v.evenness == evenness, 'Evenness error %s' % k
-            if 0 < int(k) < 13:
-                thirds = 'first 12'
-            elif 12 < int(k) < 25:
-                thirds = 'second 12'
-            elif 24 < int(k) <= 36:
-                thirds = 'third 12'
-            else:
-                thirds = 'oops'
-            assert v.third == thirds, 'Wrong thirds range %s' % k
-            half = 'low' if 0 < int(k) <= 18 else 'high'
-            assert v.half == half and int(k) <= 36, 'Not high nor low %s' % k
-            if (int(k) % 3) == 1:
-                column = 1
-            elif (int(k) % 3) == 2:
-                column = 2
-            elif (int(k) % 3) == 0:
-                column = 3
-            else:
-                column = 'oops'
-            assert v.column == column, 'Invalid column number %s' % k
-        else:
-            assert k == '0' or '00', 'Invalid bet'
-            assert v.color == 'green', 'Invalid bet type'
+
+    def __init__(self, name, odds):
+        self.name = name
+        self.odds = odds
+
+    def winAmount(self, amount):
+        """Winnings from a bet of ``amount``"""
+        return self.odds * amount
+
+    def __str__(self):
+        return '{name:s} ({odds:d}:1)'.format_map(vars(self))
+
+    def __repr__(self):
+        return '{class_:s}({name!r}, {odds!r})'.format(
+            class_=self.__class__.__name__, **vars(self))
+
+    def __eq__(self, other):
+        return self.name == other.name
+
+    def __hash__(self):
+        return hash(self.name)
 
 
-def tests():
-    test_full_TABLE()
-    test_TABLE_pairs()
+class Bin(frozenset):
+    """Extension to built-in frozenset class"""
+
+
 
 if __name__ == '__main__':
-    tests()
+    pass
