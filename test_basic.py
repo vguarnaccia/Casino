@@ -4,6 +4,7 @@
 import unittest
 import roulette as rl
 
+
 class Test_Outcome_Class(unittest.TestCase):
 
     def setUp(self):
@@ -28,53 +29,6 @@ class Test_Outcome_Class(unittest.TestCase):
         del self.outcome3
 
 
-class Test_TABLE_Constant(unittest.TestCase):
-
-    def setUp(self):
-        self.TABLE = rl.TABLE
-
-    def test_full_TABLE(self):
-        assert '00' in self.TABLE, 'missing 00'
-        for bet in range(37):
-            self.assertIn(str(bet), self.TABLE)
-
-    def test_TABLE_pairs(self):
-        """test ensure that TABLE key-value pairs have valid attributes
-        Does not test if color is correct.
-        """
-        for k, v in self.TABLE.items():
-            if type(v).__name__ == 'Layout':
-                self.assertIn(v.color, ('red', 'black'))
-                evenness = 'even' if int(k) % 2 == 0 else 'odd'
-                self.assertEqual(evenness, evenness)
-                if 0 < int(k) < 13:
-                    thirds = 'first 12'
-                elif 12 < int(k) < 25:
-                    thirds = 'second 12'
-                elif 24 < int(k) <= 36:
-                    thirds = 'third 12'
-                else:
-                    thirds = 'oops'
-                self.assertEqual(v.third, thirds)
-                half = 'low' if 0 < int(k) <= 18 else 'high'
-                self.assertTrue(v.half == half and int(k) <= 36)
-                if (int(k) % 3) == 1:
-                    column = 1
-                elif (int(k) % 3) == 2:
-                    column = 2
-                elif (int(k) % 3) == 0:
-                    column = 3
-                else:
-                    column = 'oops'
-                self.assertEqual(v.column, column)
-            else:
-                self.assertTrue(k == '0' or '00')
-                self.assertEqual(v.color, 'green')
-
-    def tearDown(self):
-        del self.TABLE
-
-
 class test_Bin(unittest.TestCase):
 
     def test_Bin_init(self):
@@ -89,5 +43,21 @@ class test_Bin(unittest.TestCase):
         self.assertIsInstance(zerozero, rl.Bin)
         self.assertIsInstance(bin1, rl.Bin)
 
-if '__name__' == '__main__':
+
+class test_Wheel(unittest.TestCase):
+
+    def setUp(self):
+        self.wheel = rl.Wheel()
+
+    def test_rng_internal(self):
+        first_ten = [8, 36, 4, 16, 7, 31, 28, 30, 24, 13]
+        self.wheel.rng.seed(1)  # fixed seed
+        self.assertEqual([self.wheel.rng.randint(0, 37) for _ in range(10)], first_ten)
+
+
+class test_binBuilder(unittest.TestCase):
+    pass
+
+
+if __name__ == '__main__':
     unittest.main()
