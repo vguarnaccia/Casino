@@ -43,7 +43,6 @@ class test_Bin(unittest.TestCase):
         self.assertIsInstance(zerozero, rl.Bin)
         self.assertIsInstance(bin1, rl.Bin)
 
-
 class test_Wheel(unittest.TestCase):
 
     def setUp(self):
@@ -54,10 +53,30 @@ class test_Wheel(unittest.TestCase):
         self.wheel.rng.seed(1)  # fixed seed
         self.assertEqual([self.wheel.rng.randint(0, 37) for _ in range(10)], first_ten)
 
+    def tearDown(self):
+        del self.wheel
 
 class test_binBuilder(unittest.TestCase):
-    pass
 
+    def setUp(self):
+        self.wheel = rl.Wheel()
+        binBuilder = rl.BinBuilder()
+        binBuilder.buildBins(self.wheel)
+
+    def test_straight_bet(self):
+        for bin_num, Bin in enumerate(self.wheel):
+            if bin_num != 37:
+                self.assertIn(rl.Outcome('Staight %d' % bin_num, 35), Bin)
+            else:
+                self.assertIn(rl.Outcome('Staight 00', 35), Bin)
+
+    def test_meh_bet(self):
+        for bin_num, Bin in enumerate(self.wheel):
+            print('{0} {1}'.format(bin_num, len(Bin)))
+    # TODO: add builder tests
+
+    def tearDown(self):
+        del self.wheel
 
 if __name__ == '__main__':
     unittest.main()
