@@ -10,6 +10,7 @@ import logging
 # http://docs.python-guide.org/en/latest/writing/logging/
 LOGGER = logging.getLogger(__name__)
 
+
 class Outcome(object):
     """Store the name of a possible outcome and its odds
 
@@ -31,7 +32,7 @@ class Outcome(object):
 
     def __repr__(self):
         return '{class_:s}({name!r}, {odds!r})'.format(
-            class_=self.__class__.__name__, **vars(self))
+            class_=type(self).__name__, **vars(self))
 
     def __eq__(self, other):
         return self.name == other.name
@@ -43,6 +44,7 @@ class Outcome(object):
 class Bin(set):
     """Extension to built-in set class and builder to fill in outcomes for all bin numbers"""
 
+
 class BinBuilder(object):
     """builder for adding outcomes to bins in the wheel"""
 
@@ -53,49 +55,91 @@ class BinBuilder(object):
         """Check if all bin positions in pair are feasible."""
         return all(0 < i < 37 for i in pair)
 
-    def _straight_bet(self, bin_num, wheel):
+    def _straight_bet(self, wheel, bin_num):
         """Create straight bet outcome for bin"""
         if bin_num < 37:
-            wheel.addOutcome(bin_num, Outcome('Staight %d' % bin_num, 35))
+            wheel.addOutcome(bin_num, Outcome('Straight %d' % bin_num, 35))
         elif bin_num == 37:
-            wheel.addOutcome(bin_num, Outcome('Staight 00', 35))
+            wheel.addOutcome(bin_num, Outcome('Straight 00', 35))
         else:
             raise IndexError
 
-    def _split_bet(self, bin_num, wheel):
+    def _split_bet(self, wheel, bin_num):
         """Create split bet outcomes for bin"""
-        pairs = [(bin_num, bin_num + 1), # left pair
-                 (bin_num - 1, bin_num), # right pair
-                 (bin_num, bin_num + 3), # up pair
-                 (bin_num - 3, bin_num)] # down pair
-        for pair in pairs:
-            if self._check_pair(pair):
-                name = 'Split {0}-{1}'.format(*pair)
-                wheel.addOutcome(bin_num, Outcome(name, 17))
+        possible_pairs = {'right': (bin_num, bin_num + 1),
+                          'left': (bin_num - 1, bin_num),
+                          'up': (bin_num, bin_num + 3),
+                          'down': (bin_num - 3, bin_num)}
+        if 0 < bin_num < 37:
+            if bin_num == 1:
+                pairs = (possible_pairs['right'], possible_pairs['up'])
+            elif bin_num == 3:
+                pairs = (possible_pairs['left'], possible_pairs['up'])
+            elif bin_num == 34:
+                pairs = (possible_pairs['right'], possible_pairs['down'])
+            elif bin_num == 36:
+                pairs = (possible_pairs['left'], possible_pairs['down'])
+            else:
+                if bin_num % 3 == 1:
+                    pairs = (possible_pairs['right'],
+                             possible_pairs['up'],
+                             possible_pairs['down'])
+                elif bin_num % 3 == 2:
+                    pairs = possible_pairs.values()
+                elif bin_num % 3 == 0:
+                    pairs = (possible_pairs['left'],
+                             possible_pairs['up'],
+                             possible_pairs['down'])
+            for pair in pairs:
+                if self._check_pair(pair):
+                    name = 'Split {0}-{1}'.format(*pair)
+                    wheel.addOutcome(bin_num, Outcome(name, 17))
 
-    def _street_bet(self, bin_num, wheel):
+    def _street_bet(self, wheel, bin_num):
         """Create street bet outcomes for bin"""
-        pairs = [(bin_num, bin_num + 1, bin_num + 2),
-                 (bin_num - 1, bin_num, bin_num + 1),
-                 (bin_num - 2, bin_num - 1, bin_num)]
-        for pair in pairs:
-            if self._check_pair(pair):
-                name = 'Street {0}-{1}-{2}'.format(*pair)
-                wheel.addOutcome(bin_num, Outcome(name, 11))
+        if 0 < bin_num < 37:
+            first_bin_num = bin_num
+            while bin_num % 3 != 1:
+                bin_num -= 1
+            name = 'Street {0}-{1}-{2}'.format(bin_num, bin_num+1, bin_num+2)
+            wheel.addOutcome(first_bin_num, Outcome(name, 11))
 
-    def _corner_bet(self, bin_num, wheel):
+    def _corner_bet(self, wheel, bin_num):
         """Create corner bet outcomes for bin"""
-        pairs = [(bin_num, bin_num + 1, bin_num + 3, bin_num + 4),
-                 (bin_num - 1, bin_num, bin_num + 2, bin_num + 3),
-                 (bin_num - 2, bin_num - 1, bin_num + 1, bin_num + 2),
-                 (bin_num - 3, bin_num - 2, bin_num, bin_num + 1),
-                 (bin_num - 4, bin_num - 3, bin_num - 1, bin_num)]
-        for pair in pairs:
-            if self._check_pair(pair):
-                name = 'Corner {0}-{1}-{2}-{3}'.format(*pair)
-                wheel.addOutcome(bin_num, Outcome(name, 8))
+        possible_pairs = {
+                     'right-up':
+                                (bin_num, bin_num + 1, bin_num + 3, bin_num + 4),
+                     'left-up':
+                                (bin_num - 1, bin_num, bin_num + 2, bin_num + 3),
+                     'right-down':
+                                (bin_num - 3, bin_num - 2, bin_num, bin_num + 1),
+                     'left-down':
+                                (bin_num - 4, bin_num - 3, bin_num - 1, bin_num)
+                             }
+        if 0 < bin_num < 37:
+            if bin_num == 1:
+                pairs = (possible_pairs['right-up'],)
+            elif bin_num == 3:
+                pairs = (possible_pairs['left-up'],)
+            elif bin_num == 34:
+                pairs = (possible_pairs['right-down'],)
+            elif bin_num == 36:
+                pairs = (possible_pairs['left-down'],)
+            else:
+                if bin_num % 3 == 1:
+                    pairs = (possible_pairs['right-down'],
+                             possible_pairs['right-up'])
+                elif bin_num % 3 == 2:
+                    pairs = possible_pairs.values()
+                elif bin_num % 3 == 0:
+                    pairs = (possible_pairs['left-down'],
+                             possible_pairs['left-up'])
+            for pair in pairs:
+                if self._check_pair(pair):
+                    name = 'Corner {0}-{1}-{2}-{3}'.format(*pair)
+                    wheel.addOutcome(bin_num, Outcome(name, 8))
 
-    def _line_bet(self, bin_num, wheel):
+    def _line_bet(self, wheel, bin_num):
         """Create line bet outcomes for bin"""
         lines = [[i for i in range(j, j + 6)] for j in (1, 7, 13, 19, 25, 31)]
         for line in lines:
@@ -103,42 +147,42 @@ class BinBuilder(object):
                 name = 'Line {0}-{1}-{2}-{3}-{4}-{5}'.format(*line)
                 wheel.addOutcome(bin_num, Outcome(name, 5))
 
-    def _dozen_bet(self, bin_num, wheel):
+    def _dozen_bet(self, wheel, bin_num):
         """Create dozen bet outcomes for bin"""
         if 0 < bin_num < 37:
             dozen = 12 * ((bin_num // 12) + 1)
             name = 'Dozen {0:d}'.format(dozen)
             wheel.addOutcome(bin_num, Outcome(name, 2))
 
-    def _column_bet(self, bin_num, wheel):
+    def _column_bet(self, wheel, bin_num):
         """Create column bet outcomes for bin"""
         if 0 < bin_num < 37:
-            column = ((bin_num % 3) + 1)
+            column = bin_num % 3 if bin_num % 3 > 0 else 3
             name = 'Column {0:d}'.format(column)
-            wheel.addOutcome(bin_num, Outcome(name, 3))
+            wheel.addOutcome(bin_num, Outcome(name, 2))
 
-    def _color_bet(self, bin_num, wheel):
+    def _color_bet(self, wheel, bin_num):
         """Create color bet outcomes for bin"""
         REDS = {1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 34, 36}
         if 0 < bin_num < 37:
             wheel.addOutcome(bin_num, Outcome('Red', 2) if bin_num in REDS else Outcome('Black', 2))
 
-    def _evenness_bet(self, bin_num, wheel):
+    def _evenness_bet(self, wheel, bin_num):
         """Create evenness bet outcomes for bin"""
         if 0 < bin_num < 37:
-            if (bin_num % 18) == 0:
+            if bin_num % 2 == 0:
                 wheel.addOutcome(bin_num, Outcome('Even', 2))
             else:
                 wheel.addOutcome(bin_num, Outcome('Odd', 2))
 
-    def _hight_bet(self, bin_num, wheel):
+    def _hight_bet(self, wheel, bin_num):
         """Create hight bet outcomes for bin"""
-        if 1 < bin_num < 18:
+        if 0 < bin_num < 18:
             wheel.addOutcome(bin_num, Outcome('Low', 2))
         elif 18 < bin_num < 37:
             wheel.addOutcome(bin_num, Outcome('High', 2))
 
-    def _five_bet(self, bin_num, wheel):
+    def _five_bet(self, wheel, bin_num):
         """Create five bet outcomes for bin"""
         if bin_num in (0, 1, 2, 3, 37):
             wheel.addOutcome(bin_num, Outcome('00-0-1-2-3', 6))
@@ -156,10 +200,11 @@ class BinBuilder(object):
                 '_evenness_bet',
                 '_hight_bet',
                 '_five_bet'
-                    }
+                }
         for bin_num in range(38):
             for bet in bets:
-                getattr(self, bet)(bin_num, wheel)
+                getattr(self, bet)(wheel, bin_num)
+
 
 class Wheel(object):
     """Container for 38 bins and PRNG to select one at random"""
@@ -202,8 +247,4 @@ def Bet(object):
             class_=type(self).__name__, **vars(self))
 
 if __name__ == '__main__':
-    build = BinBuilder()
-    wheel = Wheel()
-    build.buildBins(wheel)
-    for bin_ in wheel:
-        print(*bin_)
+    pass

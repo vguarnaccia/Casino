@@ -43,6 +43,7 @@ class test_Bin(unittest.TestCase):
         self.assertIsInstance(zerozero, rl.Bin)
         self.assertIsInstance(bin1, rl.Bin)
 
+
 class test_Wheel(unittest.TestCase):
 
     def setUp(self):
@@ -56,24 +57,186 @@ class test_Wheel(unittest.TestCase):
     def tearDown(self):
         del self.wheel
 
+
 class test_binBuilder(unittest.TestCase):
 
     def setUp(self):
         self.wheel = rl.Wheel()
-        binBuilder = rl.BinBuilder()
-        binBuilder.buildBins(self.wheel)
+        self.builder = rl.BinBuilder()
+
+    def _build_helper(self, wheel, bet, bin_nums):
+        for bin_num in bin_nums:
+            getattr(self.builder, bet)(wheel, bin_num)
 
     def test_straight_bet(self):
-        for bin_num, Bin in enumerate(self.wheel):
+        bin_nums = (0, 1, 15, 30, 37)
+        bet = "_straight_bet"
+        self._build_helper(self.wheel, bet, bin_nums)
+        for bin_num in bin_nums:
             if bin_num != 37:
-                self.assertIn(rl.Outcome('Staight %d' % bin_num, 35), Bin)
+                self.assertIn(rl.Outcome('Straight %d' % bin_num, 35), self.wheel[bin_num])
             else:
-                self.assertIn(rl.Outcome('Staight 00', 35), Bin)
+                self.assertIn(rl.Outcome('Straight 00', 35), self.wheel[bin_num])
 
-    def test_meh_bet(self):
-        for bin_num, Bin in enumerate(self.wheel):
-            print('{0} {1}'.format(bin_num, len(Bin)))
-    # TODO: add builder tests
+    def test_street_bet(self):
+        bin_nums = (0, 1, 15, 29, 37)
+        bet = "_street_bet"
+        self._build_helper(self.wheel, bet, bin_nums)
+        self.assertEqual(len(self.wheel[0]), 0)
+        ans = {rl.Outcome('Street 1-2-3', 11)}
+        self.assertTrue(self.wheel[1] == ans)
+        ans = {rl.Outcome('Street 13-14-15', 11)}
+        self.assertTrue(self.wheel[15] == ans)
+        ans = {rl.Outcome('Street 28-29-30', 11)}
+        self.assertTrue(self.wheel[29] == ans)
+        self.assertEqual(len(self.wheel[37]), 0)
+
+    def test_split_bet(self):
+        bin_nums = (0, 1, 15, 29, 37)
+        bet = "_split_bet"
+        self._build_helper(self.wheel, bet, bin_nums)
+        self.assertEqual(len(self.wheel[0]), 0)
+        ans = {rl.Outcome('Split 1-2', 17), rl.Outcome('Split 1-4', 17)}
+        self.assertTrue(self.wheel[1] == ans)
+        ans = {
+            rl.Outcome('Split 12-15', 17),
+            rl.Outcome('Split 14-15', 17),
+            rl.Outcome('Split 15-18', 17)
+              }
+        self.assertTrue(self.wheel[15] == ans)
+        ans = {
+            rl.Outcome('Split 26-29', 17),
+            rl.Outcome('Split 28-29', 17),
+            rl.Outcome('Split 29-30', 17),
+            rl.Outcome('Split 29-32', 17)
+              }
+        self.assertTrue(self.wheel[29] == ans)
+        self.assertEqual(len(self.wheel[37]), 0)
+
+        # visual test
+        """def translate(Bin):
+            if len(Bin) == 3:
+                return 'edg'
+            elif len(Bin) == 4:
+                return 'mid'
+            elif len(Bin) == 2:
+                return 'crn'
+            else:
+                return 'zero'
+        bin_nums = [i for i in range(38)]
+        self._build_helper(self.wheel, bet, bin_nums)
+        row = [[translate(self.wheel[0]), translate(self.wheel[37])]] + [[translate(self.wheel[row + i]) for i in range(3)] for row in range(1, 36, 3)]
+        print(*row, sep='\n')
+        """
+
+    def test_corner_bet(self):
+        bin_nums = (0, 1, 15, 29, 37)
+        bet = "_corner_bet"
+        self._build_helper(self.wheel, bet, bin_nums)
+        self.assertEqual(len(self.wheel[0]), 0)
+        ans = {rl.Outcome('Corner 1-2-4-5', 8)}
+        self.assertTrue(self.wheel[1] == ans)
+        ans = {rl.Outcome('Corner 11-12-14-15', 8), rl.Outcome('Corner 14-15-17-18', 8)}
+        self.assertTrue(self.wheel[15] == ans)
+        ans = {
+            rl.Outcome('Corner 25-26-28-29', 8),
+            rl.Outcome('Corner 28-29-31-32', 8),
+            rl.Outcome('Corner 26-27-29-30', 8),
+            rl.Outcome('Corner 29-30-32-33', 8)
+              }
+        self.assertTrue(self.wheel[29] == ans)
+        self.assertEqual(len(self.wheel[37]), 0)
+
+    def test_line_bet(self):
+        bin_nums = (0, 1, 15, 29, 37)
+        bet = "_line_bet"
+        self._build_helper(self.wheel, bet, bin_nums)
+        self.assertEqual(len(self.wheel[0]), 0)
+        ans = {rl.Outcome('Line 1-2-3-4-5-6', 5)}
+        self.assertTrue(self.wheel[1] == ans)
+        ans = {rl.Outcome('Line 13-14-15-16-17-18', 5)}
+        self.assertTrue(self.wheel[15] == ans)
+        ans = {rl.Outcome('Line 25-26-27-28-29-30', 5)}
+        self.assertTrue(self.wheel[29] == ans)
+        self.assertEqual(len(self.wheel[37]), 0)
+
+    def test_dozen_bet(self):
+        bin_nums = (0, 1, 15, 29, 37)
+        bet = "_dozen_bet"
+        self._build_helper(self.wheel, bet, bin_nums)
+        self.assertEqual(len(self.wheel[0]), 0)
+        ans = {rl.Outcome('Dozen 12', 2)}
+        self.assertTrue(self.wheel[1] == ans)
+        ans = {rl.Outcome('Dozen 24', 2)}
+        self.assertTrue(self.wheel[15] == ans)
+        ans = {rl.Outcome('Dozen 36', 2)}
+        self.assertTrue(self.wheel[29] == ans)
+        self.assertEqual(len(self.wheel[37]), 0)
+
+    def test_column_bet(self):
+        bin_nums = (0, 1, 15, 29, 37)
+        bet = "_column_bet"
+        self._build_helper(self.wheel, bet, bin_nums)
+        self.assertEqual(len(self.wheel[0]), 0)
+        ans = {rl.Outcome('Column 1', 2)}
+        self.assertTrue(self.wheel[1] == ans)
+        ans = {rl.Outcome('Column 3', 2)}
+        self.assertTrue(self.wheel[15] == ans)
+        ans = {rl.Outcome('Column 2', 2)}
+        self.assertTrue(self.wheel[29] == ans)
+        self.assertEqual(len(self.wheel[37]), 0)
+
+    def test_color_bet(self):
+        bin_nums = (0, 1, 15, 29, 37)
+        bet = "_color_bet"
+        self._build_helper(self.wheel, bet, bin_nums)
+        self.assertEqual(len(self.wheel[0]), 0)
+        ans = {rl.Outcome('Red', 1)}
+        self.assertTrue(self.wheel[1] == ans)
+        ans = {rl.Outcome('Black', 1)}
+        self.assertTrue(self.wheel[15] == ans)
+        ans = {rl.Outcome('Black', 1)}
+        self.assertTrue(self.wheel[29] == ans)
+        self.assertEqual(len(self.wheel[37]), 0)
+
+    def test_evenness_bet(self):
+        bin_nums = (0, 1, 15, 16, 30, 37)
+        bet = "_evenness_bet"
+        self._build_helper(self.wheel, bet, bin_nums)
+        self.assertEqual(len(self.wheel[0]), 0)
+        ans = {rl.Outcome('Odd', 1)}
+        self.assertTrue(self.wheel[1] == ans)
+        ans = {rl.Outcome('Odd', 1)}
+        self.assertTrue(self.wheel[15] == ans)
+        ans = {rl.Outcome('Even', 1)}
+        self.assertTrue(self.wheel[16] == ans)
+        ans = {rl.Outcome('Even', 1)}
+        self.assertTrue(self.wheel[30] == ans)
+        self.assertEqual(len(self.wheel[37]), 0)
+
+    def test_hight_bet(self):
+        bin_nums = (0, 1, 15, 29, 37)
+        bet = "_hight_bet"
+        self._build_helper(self.wheel, bet, bin_nums)
+        self.assertEqual(len(self.wheel[0]), 0)
+        ans = {rl.Outcome('Low', 1)}
+        self.assertTrue(self.wheel[1] == ans)
+        ans = {rl.Outcome('Low', 1)}
+        self.assertTrue(self.wheel[15] == ans)
+        ans = {rl.Outcome('High', 1)}
+        self.assertTrue(self.wheel[29] == ans)
+        self.assertEqual(len(self.wheel[37]), 0)
+
+    def test_five_bet(self):
+        bin_nums = (0, 1, 15, 16, 30, 37)
+        bet = "_five_bet"
+        self._build_helper(self.wheel, bet, bin_nums)
+        ans = {rl.Outcome('00-0-1-2-3', 6)}
+        self.assertTrue(self.wheel[0] == ans)
+        self.assertTrue(self.wheel[1] == ans)
+        self.assertTrue(self.wheel[37] == ans)
+        self.assertEqual(len(self.wheel[15]), 0)
+        self.assertEqual(len(self.wheel[30]), 0)
 
     def tearDown(self):
         del self.wheel
