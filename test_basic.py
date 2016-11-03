@@ -57,26 +57,26 @@ class test_Wheel(unittest.TestCase):
     def test_getOutcome(self):
         """results depends on successful binBuilder"""
         rl.BinBuilder.buildBins(self.wheel)
-        outcome_quantity = {'straight' : 38,
-                            'split' : 114,
-                            'street' : 12,
-                            'corner' : 22,
-                            'fives' : 1,
-                            'line' : 6,
-                            'dozen' : 3,
-                            'column' : 3,
-                            'red' : 1,
-                            'black' : 1,
-                            'odd' : 1,
-                            'even' : 1,
-                            'high' : 1,
-                            'low' : 1}
-
-        import pdb; pdb.set_trace()  # XXX BREAKPOINT
+        outcome_quantity = {'straight': 38,
+                            'split': 57,
+                            'street': 12,
+                            'corner': 22,
+                            '00-0-1-2-3': 1,
+                            'line': 6,
+                            'dozen': 3,
+                            'column': 3,
+                            'red': 1,
+                            'black': 1,
+                            'odd': 1,
+                            'even': 1,
+                            'high': 1,
+                            'low': 1}
         for name, uniq_num in outcome_quantity.items():
             self.assertEqual(len(self.wheel.getOutcome(name)), uniq_num)
+
     def tearDown(self):
         del self.wheel
+
 
 class test_binBuilder(unittest.TestCase):
 
@@ -261,6 +261,23 @@ class test_binBuilder(unittest.TestCase):
     def tearDown(self):
         del self.wheel
 
+
+class test_Bet(unittest.TestCase):
+
+    def setUp(self):
+        self.bet1 = rl.Bet(5, rl.Outcome('redish', 8))
+        self.bet2 = rl.Bet(10.6, rl.Outcome('80-90', 9))
+
+    def test_winAmount(self):
+        self.assertEqual(self.bet1.winAmount(), 45)
+        self.assertAlmostEqual(self.bet2.winAmount(), 106, places=3)
+
+    def test_loseAmount(self):
+        self.assertEqual(self.bet1.loseAmount(), 5)
+        self.assertEqual(self.bet2.loseAmount(), 10.6)
+
+    def tearDown(self):
+        del self.bet1, self.bet2
 
 if __name__ == '__main__':
     unittest.main()

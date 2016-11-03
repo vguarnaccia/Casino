@@ -164,10 +164,18 @@ class BinBuilder(object):
 
     def _dozen_bet(self, wheel, bin_num):
         """Create dozen bet outcomes for bin"""
-        if 0 < bin_num < 37:
-            dozen = 12 * ((bin_num // 12) + 1)
-            name = 'Dozen {0:d}'.format(dozen)
-            wheel.addOutcome(bin_num, Outcome(name, 2))
+        if 0 < bin_num <= 12:
+            dozen = 12
+        elif 12 < bin_num <= 24:
+            dozen = 24
+        elif 24 < bin_num <= 36:
+            dozen = 36
+        elif bin_num == 0 or bin_num == 37:
+            return
+        else:
+            raise ValueError
+        name = 'Dozen {0:d}'.format(dozen)
+        wheel.addOutcome(bin_num, Outcome(name, 2))
 
     def _column_bet(self, wheel, bin_num):
         """Create column bet outcomes for bin"""
@@ -249,7 +257,7 @@ class Wheel(object):
         return self.bins[index]
 
 
-def Bet(object):
+class Bet(object):
     """Player to Outcome API.
 
     A plyaer uses the wheel object's unique set of bets to place an bet with an amount.
