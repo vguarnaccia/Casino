@@ -54,9 +54,29 @@ class test_Wheel(unittest.TestCase):
         self.wheel.rng.seed(1)  # fixed seed
         self.assertEqual([self.wheel.rng.randint(0, 37) for _ in range(10)], first_ten)
 
+    def test_getOutcome(self):
+        """results depends on successful binBuilder"""
+        rl.BinBuilder.buildBins(self.wheel)
+        outcome_quantity = {'straight' : 38,
+                            'split' : 114,
+                            'street' : 12,
+                            'corner' : 22,
+                            'fives' : 1,
+                            'line' : 6,
+                            'dozen' : 3,
+                            'column' : 3,
+                            'red' : 1,
+                            'black' : 1,
+                            'odd' : 1,
+                            'even' : 1,
+                            'high' : 1,
+                            'low' : 1}
+
+        import pdb; pdb.set_trace()  # XXX BREAKPOINT
+        for name, uniq_num in outcome_quantity.items():
+            self.assertEqual(len(self.wheel.getOutcome(name)), uniq_num)
     def tearDown(self):
         del self.wheel
-
 
 class test_binBuilder(unittest.TestCase):
 
@@ -240,6 +260,7 @@ class test_binBuilder(unittest.TestCase):
 
     def tearDown(self):
         del self.wheel
+
 
 if __name__ == '__main__':
     unittest.main()

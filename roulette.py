@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """This game simulates roulette and allows players to implement strategies.
-It also allows the player to collect statistics and analyze their effectiveness"""
+It also allows the player to collect statistics and analyze their effectiveness
+
+Todo:
+    * Go over google style guide
+    http://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html
+    * reread instruction and document.
+"""
 
 import random
 import logging
@@ -16,7 +22,7 @@ class Outcome(object):
 
     Attributes:
         name (str): Name of the outcome
-        Odds (int): Denominator for odds, i.e. odds of 17:1 means Odds = 17
+        odds (int): Denominator for odds, i.e. odds of 17:1 means Odds = 17
     """
 
     def __init__(self, name, odds):
@@ -46,7 +52,16 @@ class Bin(set):
 
 
 class BinBuilder(object):
-    """builder for adding outcomes to bins in the wheel"""
+    """builder for adding outcomes to bins in the wheel
+
+    This class is not pythonic and could be written much better.
+    It contains a static method called buildBins which populates all the bins in a :obj:`Wheel`.
+
+    Examples:
+        >>> wheel = Wheel()
+        >>> BinBuilder.buildBins(wheel)
+
+    """
 
     def __init__(self):
         pass
@@ -187,8 +202,10 @@ class BinBuilder(object):
         if bin_num in (0, 1, 2, 3, 37):
             wheel.addOutcome(bin_num, Outcome('00-0-1-2-3', 6))
 
-    def buildBins(self, wheel):
+    @staticmethod
+    def buildBins(wheel):
         """Builder to create all outcomes for bin with bin number"""
+        builder = BinBuilder()
         bets = {'_straight_bet',
                 '_split_bet',
                 '_street_bet',
@@ -203,7 +220,7 @@ class BinBuilder(object):
                 }
         for bin_num in range(38):
             for bet in bets:
-                getattr(self, bet)(wheel, bin_num)
+                getattr(builder, bet)(wheel, bin_num)
 
 
 class Wheel(object):
@@ -211,12 +228,18 @@ class Wheel(object):
 
     def __init__(self):
         self.bins = [Bin() for _ in range(38)]
+        self.all_outcomes = set()
         # index 37 = '00', else index matches slot
         self.rng = random.Random()
 
     def addOutcome(self, number, outcome):
-        """Add outcomes to bin"""
+        """Add outcomes to bin and maintain set of distinct outcomes"""
         self.bins[number].add(outcome)
+        self.all_outcomes.add(outcome)
+
+    def getOutcome(self, name):
+        """get all outcomes containing ``name``"""
+        return {oc for oc in self.all_outcomes if name.casefold() in oc.name.casefold()}
 
     def next(self):
         """Select bin from bins"""
@@ -227,24 +250,38 @@ class Wheel(object):
 
 
 def Bet(object):
-    """Player to Outcome API"""
+    """Player to Outcome API.
+
+    A plyaer uses the wheel object's unique set of bets to place an bet with an amount.
+
+        Args:
+            amount (int): amount bet
+            outcome (Outcome): the :class:`Outcome` we're betting on"""
 
     def __init__(self, amount, outcome):
         self.amount = amount
         self.outcome = outcome
 
     def winAmount(self):
-        pass
+        """Uses the Outcome‘s winAmount to compute the amount won, given the amount of this bet.
+        Note that the amount bet must also be added in.
+        A 1:1 outcome (e.g. a bet on Red) pays the amount bet plus the amount won.
+        """
+        return self.amount + self.outcome.winAmount(self.amount)
 
     def loseAmount(self):
-        pass
+        """returns the amount bet as the amount lost.
+        This is the cost of placing the bet."""
+        return self.amount
 
     def __str__(self):
         return '{amount:s} on {outcome:s}'.format_map(vars(self))
 
     def __repr__(self):
-        return '{class_:s}({name!r}, {odds!r})'.format(
+        return '{class_:s}({amount!r}, {outcome!r})'.format(
             class_=type(self).__name__, **vars(self))
 
 if __name__ == '__main__':
-    pass
+    wheel = Wheel()
+    builder = BinBuilder()
+    builder.buildBins(wheel)
