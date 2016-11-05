@@ -265,7 +265,7 @@ class test_binBuilder(unittest.TestCase):
 class test_Bet(unittest.TestCase):
 
     def setUp(self):
-        self.bet1 = rl.Bet(5, rl.Outcome('redish', 8))
+        self.bet1 = rl.Bet(5, rl.Outcome('reddish', 8))
         self.bet2 = rl.Bet(10.6, rl.Outcome('80-90', 9))
 
     def test_winAmount(self):
@@ -276,8 +276,31 @@ class test_Bet(unittest.TestCase):
         self.assertEqual(self.bet1.loseAmount(), 5)
         self.assertEqual(self.bet2.loseAmount(), 10.6)
 
+    def test_add(self):
+        self.assertEqual(self.bet1 + self.bet2, 15.6)
+
     def tearDown(self):
         del self.bet1, self.bet2
+
+
+class test_Table(unittest.TestCase):
+
+    def setUp(self):
+        self.bets = [rl.Bet(5, rl.Outcome('reddish', 8)), rl.Bet(10.6, rl.Outcome('80-90', 9))]
+        self.table = rl.Table(200, 5, self.bets)
+
+    def test_iter(self):
+        for table_bet, bet in zip(self.table, self.bets):
+            self.assertEqual(table_bet, bet)
+
+    def test_isValid(self):
+        self.table.placeBet(rl.Bet(100, rl.Outcome('foo', 10)))
+        with self.assertRaises(rl.InvalidBet):
+            self.table.placeBet(rl.Bet(self.table.limit + 1, rl.Outcome('bar', 5)))
+
+    def tearDown(self):
+        del self.bets, self.table
+
 
 if __name__ == '__main__':
     unittest.main()

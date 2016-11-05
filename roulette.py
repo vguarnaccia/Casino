@@ -11,6 +11,7 @@ Todo:
 
 import random
 import logging
+from pprint import pprint
 
 # for tips on logging go to
 # http://docs.python-guide.org/en/latest/writing/logging/
@@ -283,11 +284,96 @@ class Bet(object):
         return self.amount
 
     def __str__(self):
-        return '{amount:s} on {outcome:s}'.format_map(vars(self))
+        return '{amount:.2f} on {outcome}'.format_map(vars(self))
 
     def __repr__(self):
         return '{class_:s}({amount!r}, {outcome!r})'.format(
             class_=type(self).__name__, **vars(self))
+
+    def __add__(self, other):
+        """allows for summing of bets"""
+        return self.amount + other.amount
+
+    def __radd__(self, other):
+        """allows for summing of bets"""
+        return other + self.amount
+
+
+class InvalidBet(Exception):
+    """InvalidBet is raised when the Player attempts to place a bet which exceeds the table’s limit.
+    """
+    pass
+
+
+class Table(object):
+    """Table contains all the Bets created by the Player.
+    A table also has a betting limit, and the sum of all of a player’s bets must be
+    less than or equal to this limit. We assume a single Player in the simulation.
+
+    Note:
+        We've made the design choice to deduct a player's bet amount when a bet is placed.
+
+    Args:
+        limit (int): This is the table limit.
+        The sum of the bets from a Player must be less than or equal to this limit.
+
+        minimum (int): This is the table minimum.
+        Each individual bet from a Player must be greate than this limit.
+
+        bets (:obj:`list` of :obj:`Bet`): This is a list of the Bets currently active.
+        These will result in either wins or losses to the Player.
+    """
+
+    def __init__(self, limit, minimum, bets):
+        self.limit = limit
+        self.minimum = minimum
+        self.bets = bets
+        self.Table = None  # not implemented constructor
+
+    def placeBet(self, bet):
+        """Table to bet interface.
+
+        Args:
+            bet (:obj:`Bet`): A Bet instance to be added to the table.
+
+        Raise:
+            InvalidBet: indicates bug in :obj:`Player`
+        """
+        self.bets.append(bet)
+        self.isValid()
+
+    def isValid(self):
+        """Check table limit rule.
+
+        Raise:	InvalidBet if the bets don’t pass the table limit rules.
+
+        Applies the table-limit rules:
+
+        * The sum of all bets is less than or equal to the table limit.
+        * All bet amounts are greater than or equal to the table minimum
+        """
+        if self.minimum <= sum(self.bets) <= self.limit:
+            return None
+        else:
+            raise InvalidBet
+
+    def __iter__(self):
+        """Iterate over all bet in bets.
+
+        Yield:
+            bet (:obj:`Bet`)
+        """
+        for bet in self.bets:
+            yield bet
+
+    def __str__(self):
+        """Easy-to-read representation of all bets"""
+        pprint(self.bets)
+
+    def __repr__(self):
+        return '{class_:s}({bets!r})'.format(
+            class_=type(self).__name__, **vars(self))
+
 
 if __name__ == '__main__':
     wheel = Wheel()
