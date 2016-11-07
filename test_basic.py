@@ -3,6 +3,7 @@
 
 import unittest
 import roulette as rl
+import roulette_player as rlp
 
 
 class Test_Outcome_Class(unittest.TestCase):
@@ -300,6 +301,22 @@ class test_Table(unittest.TestCase):
 
     def tearDown(self):
         del self.bets, self.table
+
+class test_game(unittest.TestCase):
+
+    def setUp(self):
+        wheel = rl.Wheel()
+        rl.BinBuilder.buildBins(wheel)
+        table = rl.Table(200, 5, [])
+        self.game = rlp.Game(wheel, table)
+        self.player = rlp.Passenger57(wheel, table)
+
+    def tearDown(self):
+        del self.game, self.player
+
+    def test_game_cycle(self):
+        for _ in range(10):
+            self.game.cycle(self.player)
 
 
 if __name__ == '__main__':

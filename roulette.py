@@ -1,12 +1,28 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""This game simulates roulette and allows players to implement strategies.
-It also allows the player to collect statistics and analyze their effectiveness
+"""This module contains the business logic for the game of roulette. It is a solution to the
+roulette problems in `Building Skills in Object-Oriented Design`_. However, we more closely follow
+the `Google Python Style Guide`.
+
+This module contains two important classes:
+
+    :obj:`Wheel` which contains the set of all bets and all bets for each bin (00, and 0 to 36).
+    :obj:`Table` which contains all present bets by a player.
+
+The game and player exist independently from casino table game.
 
 Todo:
-    * Go over google style guide
-    http://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html
+    * Go over  `Google Python Style Guide` and `Napoleon`_ examples
     * reread instruction and document.
+    * implement logger
+
+.. _`Building Skills in Object-Oriented Design`:
+    http://buildingskills.itmaybeahack.com/oodesign.html#book-oodesign
+
+.. _Google Python Style Guide:
+   http://google.github.io/styleguide/pyguide.html
+
+.. _Napoleon:
+    http://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html
 """
 
 import random
@@ -20,6 +36,9 @@ LOGGER = logging.getLogger(__name__)
 
 class Outcome(object):
     """Store the name of a possible outcome and its odds
+
+    Note:
+        Outcomes should be accessed via the :obj:`Wheel`\\ .
 
     Attributes:
         name (str): Name of the outcome
@@ -55,8 +74,9 @@ class Bin(set):
 class BinBuilder(object):
     """builder for adding outcomes to bins in the wheel
 
-    This class is not pythonic and could be written much better.
-    It contains a static method called buildBins which populates all the bins in a :obj:`Wheel`.
+    Note:
+        This class is not pythonic and could be written much better.
+        It contains a static method called buildBins which populates all the bins in a :obj:`Wheel`.
 
     Examples:
         >>> wheel = Wheel()
@@ -242,17 +262,33 @@ class Wheel(object):
         self.rng = random.Random()
 
     def addOutcome(self, number, outcome):
-        """Add outcomes to bin and maintain set of distinct outcomes"""
+        """Add outcomes to bin and maintain set of distinct outcomes
+
+        Args:
+            bin (int): the bin index from 0 to 37 inclusive.
+            outcome (:obj:`Outcome) the :obj:`Outcome to add to this bin.
+        """
         self.bins[number].add(outcome)
         self.all_outcomes.add(outcome)
 
     def getOutcome(self, name):
-        """get all outcomes containing ``name``"""
+        """get all outcomes containing ``name``
+
+        Arg:
+            name (str): name of desired outcomes, by partial match, case insensitive.
+
+        Return:
+            Set of all outcomes matching ``name``.
+        """
         return {oc for oc in self.all_outcomes if name.casefold() in oc.name.casefold()}
 
     def next(self):
-        """Select bin from bins"""
-        self.rng.choice(self.bins)
+        """Select bin from bins
+
+        Return:
+            bin (:obj:`Bin`): random bin from wheel.
+        """
+        return self.rng.choice(self.bins)
 
     def __getitem__(self, index):
         return self.bins[index]
@@ -261,9 +297,9 @@ class Wheel(object):
 class Bet(object):
     """Player to Outcome API.
 
-    A plyaer uses the wheel object's unique set of bets to place an bet with an amount.
+    A player uses the wheel object's unique set of bets to place an bet with an amount.
 
-        Args:
+        Attributes:
             amount (int): amount bet
             outcome (Outcome): the :class:`Outcome` we're betting on"""
 
@@ -313,7 +349,7 @@ class Table(object):
     Note:
         We've made the design choice to deduct a player's bet amount when a bet is placed.
 
-    Args:
+    Attributes:
         limit (int): This is the table limit.
         The sum of the bets from a Player must be less than or equal to this limit.
 
@@ -373,9 +409,3 @@ class Table(object):
     def __repr__(self):
         return '{class_:s}({bets!r})'.format(
             class_=type(self).__name__, **vars(self))
-
-
-if __name__ == '__main__':
-    wheel = Wheel()
-    builder = BinBuilder()
-    builder.buildBins(wheel)
