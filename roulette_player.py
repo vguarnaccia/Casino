@@ -7,52 +7,52 @@ Todo:
     * Go over  `Google Python Style Guide` and `Napoleon`_ examples
     * make sure backslashes in rst worked out properly.
     * build logger.
+    * `incorporate solution Q&A into doc.
+    <http://buildingskills.itmaybeahack.com/book/oodesign-3.1/html/roulette/solution.html#roul-ov-qanda-main>``:
 """
 
 import roulette as rl
 import logging
-
+from abc import ABCMeta, abstractmethod
 
 # for tips on logging go to
 # http://docs.python-guide.org/en/latest/writing/logging/
 LOGGER = logging.getLogger(__name__)
 
 
-class Player(object):
-    """not implemented yet
+class Player(metaclass=ABCMeta):
+    """This is a base class for designing players.
 
-    Todo:
-        * implement this base class
-    """
-    pass
-
-
-class Passenger57(Player):
-    """dead simple player that always bets on black and has infinite money.
+    Note:
+        Subclass must implement `placeBets()` and may override `__init__`\\ .
 
     Attributes:
-        table (:obj:`Table`): The :obj:`Table` instance on which bets are placed.
-        wheel (:obj:`Wheel`): The :obj:`Wheel` instance which defines all :obj:`Outcome`\\ s.
-        black (:obj:`Outcome`): This :obj:`Player` always bets on Black.
+        roundsToGo (int): the number of rounds to play.
+        stake (int): the player's current stake.
+        table (Table): The instance of `Table` that `Bet`\\ s are placed on.
+        wheel (Wheel): The instance of `Wheel` that contain allowable `Bet`\\ s.
     """
 
-    def __init__(self, wheel, table):
+    def __init__(self, table, wheel):
+        self.roundsToGo = 1  # not implemented
+        self.stake = 100  # not implemented
         self.table = table
         self.wheel = wheel
-        self.stake = float('inf')
-        outcome = wheel.getOutcome('Black')
-        amount = 10  # actually, not implemented
-        self.black = rl.Bet(amount, outcome)  # instance of bet black
 
+    def _placeBets_helper(self, bet):
+        self.stake -= bet.loseAmount()
+        self.table.placeBet(bet)
+
+    @abstractmethod
     def placeBets(self):
         """Updates the ``table`` with the various bets.
 
         This version creates a :obj:`Bet` instance from the black Outcome.
         It uses :obj:`Table`\\ 's placeBet() to place that bet.
         """
-        bet = self.black
-        self.stake -= bet.loseAmount()
-        self.table.placeBet(bet)
+        # bet = not implemented
+        # self._placeBets_helper(bet)
+        pass
 
     def win(self, bet):
         """Notification from :obj:`Game` that the :obj:`Bet` was a winner.
@@ -64,7 +64,6 @@ class Passenger57(Player):
         """
         self.stake += bet.winAmount()
 
-
     def lose(self, bet):
         """Notification from :obj:`Game` that the :obj:`Bet` was a loser.
 
@@ -72,6 +71,67 @@ class Passenger57(Player):
             bet (:obj:`Bet`): the bet which lost.
         """
         return None
+
+    def playing(self):
+        """is player to active?"""
+        return (self.roundsToGo > 0)
+
+
+class Passenger57(Player):
+    """dead simple player that always bets on black and has infinite money.
+
+    Attributes:
+        table (Table): The :obj:`Table` instance on which bets are placed.
+        wheel (Wheel): The :obj:`Wheel` instance which defines all :obj:`Outcome`\\ s.
+    """
+
+    def __init__(self, table, wheel):
+        super(Passenger57, self).__init__(table, wheel)  # call abc __init__
+        self.stake = 250  # not specified
+        self.black = self.wheel.getOutcome('Black').pop() # getOutcome returns a set
+
+    def placeBets(self):
+        """Updates the ``table`` with the various bets.
+
+        This version creates a :obj:`Bet` instance from the black Outcome.
+        It uses :obj:`Table`\\ 's placeBet() to place that bet.
+        """
+        amount = 10  # actually, not implemented
+        bet = rl.Bet(amount, self.black)  # instance of bet black
+        self._placeBets_helper(bet)
+
+
+class Martingale(Player):
+    """`Martingale` is a `Player` who doubles their bet on every loss and resets their bet on win.
+
+    Attributes:
+        lossCount (int): number of times to double the bet.
+        betMultiple (int): bet multiplier based on the number of bets. Equal to 2^lossCount.
+        """
+
+    def __init__(self, table, wheel):
+        super(Martingale, self).__init__(table, wheel)  # call abc __init__
+        self.lossCount = 0
+
+    @property
+    def betMultiple(self):
+        return 2**self.lossCount
+
+    def placeBets(self):
+        super(Martingale, self).__doc__ + """Bet amount doubles after each loss and resets after each win"""
+        amount = 10*self.betMultiple  # actually, not implemented
+        bet = rl.Bet(amount, self.black)  # instance of bet black
+        self._placeBets_helper(bet)
+
+    def win(self, bet):
+        """Same as `Player`\\ 's win method but resets `lossCount`\\ ."""
+        super(Martingale, self).win(bet)
+        self.lossCount = 0
+
+    def lose(self, bet):
+        """Same as `Player`\\ 's lose method but increments `lossCount`\\ ."""
+        super(Martingale, self).lose(bet)
+        self.lossCount += 1
 
 
 class Game(object):
@@ -81,14 +141,14 @@ class Game(object):
     resolving the :obj:`Bet`\\ s actually present on the Table.
 
     Attributes:
-        wheel (:obj:`Wheel`): The :obj:`Wheel` that returns a randomly selected :obj:`Bin`\\ .
         table (:obj:`Table`): the :obj:`Table` which contains the :obj:`Bet`\\ s
             placed by :obj:`Player`\\ .
+        wheel (:obj:`Wheel`): The :obj:`Wheel` that returns a randomly selected :obj:`Bin`\\ .
     """
 
-    def __init__(self, wheel, table):
-        self.wheel = wheel
+    def __init__(self, table, wheel):
         self.table = table
+        self.wheel = wheel
 
     def cycle(self, player):
         """Executes a single cycle of play.
@@ -103,11 +163,11 @@ class Game(object):
             player (:obj:`Player`): the individual player that places bets,
                 receives winnings and pays losses.
         """
-        player.placeBets() # real work of placing bet is delegated to Player class
-        winning_bets = self.wheel.next()
-        for bet in player.table:
-            player.win(bet) if bet in winning_bets else player.lose(bet)
-
+        if player.playing:
+            player.placeBets()  # real work of placing bet is delegated to Player class
+            winning_outcomes = self.wheel.next()
+            for bet in player.table:
+                player.win(bet) if bet.outcome in winning_outcomes else player.lose(bet)
 
 
 if __name__ == '__main__':

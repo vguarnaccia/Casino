@@ -137,21 +137,18 @@ class BinBuilder(object):
             first_bin_num = bin_num
             while bin_num % 3 != 1:
                 bin_num -= 1
-            name = 'Street {0}-{1}-{2}'.format(bin_num, bin_num+1, bin_num+2)
+            name = 'Street {0}-{1}-{2}'.format(bin_num,
+                                               bin_num + 1, bin_num + 2)
             wheel.addOutcome(first_bin_num, Outcome(name, 11))
 
     def _corner_bet(self, wheel, bin_num):
         """Create corner bet outcomes for bin"""
         possible_pairs = {
-                     'right-up':
-                                (bin_num, bin_num + 1, bin_num + 3, bin_num + 4),
-                     'left-up':
-                                (bin_num - 1, bin_num, bin_num + 2, bin_num + 3),
-                     'right-down':
-                                (bin_num - 3, bin_num - 2, bin_num, bin_num + 1),
-                     'left-down':
-                                (bin_num - 4, bin_num - 3, bin_num - 1, bin_num)
-                             }
+            'right-up': (bin_num, bin_num + 1, bin_num + 3, bin_num + 4),
+            'left-up': (bin_num - 1, bin_num, bin_num + 2, bin_num + 3),
+            'right-down': (bin_num - 3, bin_num - 2, bin_num, bin_num + 1),
+            'left-down': (bin_num - 4, bin_num - 3, bin_num - 1, bin_num)
+        }
         if 0 < bin_num < 37:
             if bin_num == 1:
                 pairs = (possible_pairs['right-up'],)
@@ -207,24 +204,25 @@ class BinBuilder(object):
 
     def _color_bet(self, wheel, bin_num):
         """Create color bet outcomes for bin"""
-        REDS = {1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 34, 36}
+        reds = {1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 34, 36}
         if 0 < bin_num < 37:
-            wheel.addOutcome(bin_num, Outcome('Red', 2) if bin_num in REDS else Outcome('Black', 2))
+            wheel.addOutcome(bin_num,
+                             Outcome('Red', 1) if bin_num in reds else Outcome('Black', 1))
 
     def _evenness_bet(self, wheel, bin_num):
         """Create evenness bet outcomes for bin"""
         if 0 < bin_num < 37:
             if bin_num % 2 == 0:
-                wheel.addOutcome(bin_num, Outcome('Even', 2))
+                wheel.addOutcome(bin_num, Outcome('Even', 1))
             else:
-                wheel.addOutcome(bin_num, Outcome('Odd', 2))
+                wheel.addOutcome(bin_num, Outcome('Odd', 1))
 
     def _hight_bet(self, wheel, bin_num):
         """Create hight bet outcomes for bin"""
         if 0 < bin_num < 18:
-            wheel.addOutcome(bin_num, Outcome('Low', 2))
+            wheel.addOutcome(bin_num, Outcome('Low', 1))
         elif 18 < bin_num < 37:
-            wheel.addOutcome(bin_num, Outcome('High', 2))
+            wheel.addOutcome(bin_num, Outcome('High', 1))
 
     def _five_bet(self, wheel, bin_num):
         """Create five bet outcomes for bin"""
@@ -246,7 +244,7 @@ class BinBuilder(object):
                 '_evenness_bet',
                 '_hight_bet',
                 '_five_bet'
-                }
+               }
         for bin_num in range(38):
             for bet in bets:
                 getattr(builder, bet)(wheel, bin_num)
@@ -280,7 +278,8 @@ class Wheel(object):
         Return:
             Set of all outcomes matching ``name``.
         """
-        return {oc for oc in self.all_outcomes if name.casefold() in oc.name.casefold()}
+        return {oc for oc in self.all_outcomes if name.casefold()
+                in oc.name.casefold()}
 
     def next(self):
         """Select bin from bins
@@ -360,11 +359,13 @@ class Table(object):
         These will result in either wins or losses to the Player.
     """
 
-    def __init__(self, limit, minimum, bets):
+    def __init__(self, limit, minimum, bets=None):
         self.limit = limit
         self.minimum = minimum
-        self.bets = bets
-        self.Table = None  # not implemented constructor
+        if bets is None:
+            self.bets = []
+        else:
+            self.bets = bets
 
     def placeBet(self, bet):
         """Table to bet interface.

@@ -6,7 +6,7 @@ import roulette as rl
 import roulette_player as rlp
 
 
-class Test_Outcome_Class(unittest.TestCase):
+class test_Outcome_Class(unittest.TestCase):
 
     def setUp(self):
         self.outcome1 = rl.Outcome('name1', 8)
@@ -53,7 +53,8 @@ class test_Wheel(unittest.TestCase):
     def test_rng_internal(self):
         first_ten = [8, 36, 4, 16, 7, 31, 28, 30, 24, 13]
         self.wheel.rng.seed(1)  # fixed seed
-        self.assertEqual([self.wheel.rng.randint(0, 37) for _ in range(10)], first_ten)
+        self.assertEqual([self.wheel.rng.randint(0, 37)
+                          for _ in range(10)], first_ten)
 
     def test_getOutcome(self):
         """results depends on successful binBuilder"""
@@ -79,7 +80,7 @@ class test_Wheel(unittest.TestCase):
         del self.wheel
 
 
-class test_binBuilder(unittest.TestCase):
+class test_BinBuilder(unittest.TestCase):
 
     def setUp(self):
         self.wheel = rl.Wheel()
@@ -95,9 +96,18 @@ class test_binBuilder(unittest.TestCase):
         self._build_helper(self.wheel, bet, bin_nums)
         for bin_num in bin_nums:
             if bin_num != 37:
-                self.assertIn(rl.Outcome('Straight %d' % bin_num, 35), self.wheel[bin_num])
+                self.assertIn(
+                    rl.Outcome(
+                        'Straight %d' %
+                        bin_num,
+                        35),
+                    self.wheel[bin_num])
             else:
-                self.assertIn(rl.Outcome('Straight 00', 35), self.wheel[bin_num])
+                self.assertIn(
+                    rl.Outcome(
+                        'Straight 00',
+                        35),
+                    self.wheel[bin_num])
 
     def test_street_bet(self):
         bin_nums = (0, 1, 15, 29, 37)
@@ -123,32 +133,17 @@ class test_binBuilder(unittest.TestCase):
             rl.Outcome('Split 12-15', 17),
             rl.Outcome('Split 14-15', 17),
             rl.Outcome('Split 15-18', 17)
-              }
+        }
         self.assertTrue(self.wheel[15] == ans)
         ans = {
             rl.Outcome('Split 26-29', 17),
             rl.Outcome('Split 28-29', 17),
             rl.Outcome('Split 29-30', 17),
             rl.Outcome('Split 29-32', 17)
-              }
+        }
         self.assertTrue(self.wheel[29] == ans)
         self.assertEqual(len(self.wheel[37]), 0)
 
-        # visual test
-        """def translate(Bin):
-            if len(Bin) == 3:
-                return 'edg'
-            elif len(Bin) == 4:
-                return 'mid'
-            elif len(Bin) == 2:
-                return 'crn'
-            else:
-                return 'zero'
-        bin_nums = [i for i in range(38)]
-        self._build_helper(self.wheel, bet, bin_nums)
-        row = [[translate(self.wheel[0]), translate(self.wheel[37])]] + [[translate(self.wheel[row + i]) for i in range(3)] for row in range(1, 36, 3)]
-        print(*row, sep='\n')
-        """
 
     def test_corner_bet(self):
         bin_nums = (0, 1, 15, 29, 37)
@@ -157,14 +152,20 @@ class test_binBuilder(unittest.TestCase):
         self.assertEqual(len(self.wheel[0]), 0)
         ans = {rl.Outcome('Corner 1-2-4-5', 8)}
         self.assertTrue(self.wheel[1] == ans)
-        ans = {rl.Outcome('Corner 11-12-14-15', 8), rl.Outcome('Corner 14-15-17-18', 8)}
+        ans = {
+            rl.Outcome(
+                'Corner 11-12-14-15',
+                8),
+            rl.Outcome(
+                'Corner 14-15-17-18',
+                8)}
         self.assertTrue(self.wheel[15] == ans)
         ans = {
             rl.Outcome('Corner 25-26-28-29', 8),
             rl.Outcome('Corner 28-29-31-32', 8),
             rl.Outcome('Corner 26-27-29-30', 8),
             rl.Outcome('Corner 29-30-32-33', 8)
-              }
+        }
         self.assertTrue(self.wheel[29] == ans)
         self.assertEqual(len(self.wheel[37]), 0)
 
@@ -287,7 +288,12 @@ class test_Bet(unittest.TestCase):
 class test_Table(unittest.TestCase):
 
     def setUp(self):
-        self.bets = [rl.Bet(5, rl.Outcome('reddish', 8)), rl.Bet(10.6, rl.Outcome('80-90', 9))]
+        self.bets = [
+            rl.Bet(
+                5, rl.Outcome(
+                    'reddish', 8)), rl.Bet(
+                10.6, rl.Outcome(
+                    '80-90', 9))]
         self.table = rl.Table(200, 5, self.bets)
 
     def test_iter(self):
@@ -297,27 +303,43 @@ class test_Table(unittest.TestCase):
     def test_isValid(self):
         self.table.placeBet(rl.Bet(100, rl.Outcome('foo', 10)))
         with self.assertRaises(rl.InvalidBet):
-            self.table.placeBet(rl.Bet(self.table.limit + 1, rl.Outcome('bar', 5)))
+            self.table.placeBet(
+                rl.Bet(
+                    self.table.limit + 1,
+                    rl.Outcome(
+                        'bar',
+                        5)))
 
     def tearDown(self):
         del self.bets, self.table
 
-class test_game(unittest.TestCase):
+
+class test_Game(unittest.TestCase):
 
     def setUp(self):
-        wheel = rl.Wheel()
-        rl.BinBuilder.buildBins(wheel)
-        table = rl.Table(200, 5, [])
-        self.game = rlp.Game(wheel, table)
-        self.player = rlp.Passenger57(wheel, table)
+        self.wheel = rl.Wheel()
+        rl.BinBuilder.buildBins(self.wheel)
+        self.wheel.rng.seed(1)  # fixed seed
+        # assuming test_rng_internal passed, self.wheel lands on 8, 36, 4, then 16.
+        self.table = rl.Table(200, 5)
+        self.game = rlp.Game(self.table, self.wheel)
+        self.passenger57 = rlp.Passenger57(self.table, self.wheel)
 
     def tearDown(self):
-        del self.game, self.player
+        del self.game, self.passenger57
 
     def test_game_cycle(self):
         for _ in range(10):
-            self.game.cycle(self.player)
+            self.game.cycle(self.passenger57)
 
+    def test_Passenger57(self):
+        """integration test for :class:`Passenger57`"""
+        self.player = self.passenger57
+        expected_stake = [260, 250, 260, 240] #assuming initial stake is 250 and bet amount is 10.
+        for i in range(4):
+            import pdb; pdb.set_trace()  # XXX BREAKPOINT
+            self.game.cycle(self.player)
+            self.assertEqual(self.player.stake, expected_stake[i])
 
 if __name__ == '__main__':
     unittest.main()
