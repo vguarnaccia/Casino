@@ -323,7 +323,8 @@ class test_Game(unittest.TestCase):
         self.wheel = rl.Wheel()
         rl.BinBuilder.buildBins(self.wheel)
         self.wheel.rng.seed(1)  # fixed seed
-        # assuming test_rng_internal passed, self.wheel lands on 8, 36, 4, then 16.
+        # assuming test_rng_internal passed, self.wheel lands on 8, 36, 4, then
+        # 16.
         self.table = rl.Table(200, 5)
         self.game = rlp.Game(self.table, self.wheel)
         self.player = rlp.Passenger57(self.table, self.wheel)
@@ -338,7 +339,8 @@ class test_Game(unittest.TestCase):
     def test_Passenger57(self):
         """integration test for :class:`Passenger57`"""
         self.player = rlp.Passenger57(self.table, self.wheel)
-        expected_stake = [260, 250, 260, 250]  # assuming initial stake is 250 and bet amount is 10.
+        # assuming initial stake is 250 and bet amount is 10.
+        expected_stake = [1010, 1000, 1010, 1000]
         for i in range(4):
             self.game.cycle(self.player)
             self.assertEqual(self.player.stake, expected_stake[i])
@@ -346,7 +348,8 @@ class test_Game(unittest.TestCase):
     def test_Martingale(self):
         """integration test for :class:`Martingale`"""
         self.player = rlp.Martingale(self.table, self.wheel)
-        expected_stake = [110, 100, 120, 110]  # assuming initial stake is 250 and bet amount is 10.
+        # assuming initial stake is 250 and bet amount is 10.
+        expected_stake = [1010, 1000, 1020, 1010]
         for i in range(4):
             self.game.cycle(self.player)
             self.assertEqual(self.player.stake, expected_stake[i])

@@ -27,20 +27,21 @@ class Player(metaclass=ABCMeta):
         Subclass must implement `placeBets()` and may override `__init__`\\ .
 
     Attributes:
-        roundsToGo (int): the number of rounds to play.
-        stake (int): the player's current stake.
         table (Table): The instance of `Table` that `Bet`\\ s are placed on.
         wheel (Wheel): The instance of `Wheel` that contain allowable `Bet`\\ s.
+        stake (int, default 1000): the player's current stake.
+        roundsToGo (int, default 100): the number of rounds to play.
     """
 
     def __init__(self, table, wheel):
-        self.roundsToGo = 1  # not implemented
-        self.stake = 100  # not implemented
         self.table = table
         self.wheel = wheel
+        self.stake = 1000  # default, can be set with method
+        self.roundsToGo = 100  # default, can be set with method
 
     def _placeBets_helper(self, bets):
-        self.stake -= bets.loseAmount()
+        for bet in bets:
+            self.stake -= bet.loseAmount()
         self.table.placeBet(bets)
 
     @abstractmethod
@@ -88,8 +89,8 @@ class Passenger57(Player):
 
     def __init__(self, table, wheel):
         super(Passenger57, self).__init__(table, wheel)  # call abc __init__
-        self.stake = 250  # not specified
-        self.black = self.wheel.getOutcome('Black').pop()  # getOutcome returns a set
+        self.black = self.wheel.getOutcome(
+            'Black').pop()  # getOutcome returns a set
 
     def placeBets(self):
         """Updates the ``table`` with the various bets.
@@ -97,9 +98,9 @@ class Passenger57(Player):
         This version creates a :obj:`Bet` instance from the black Outcome.
         It uses :obj:`Table`\\ 's placeBet() to place that bet.
         """
-        amount = 10  # actually, not implemented
-        bet = rl.Bet(amount, self.black)  # instance of bet black
-        self._placeBets_helper(bet)
+        amount = 10  # just a placeholder.
+        bets = [rl.Bet(amount, self.black)]  # instance of bet black
+        self._placeBets_helper(bets)
 
 
 class Martingale(Player):
@@ -112,18 +113,21 @@ class Martingale(Player):
 
     def __init__(self, table, wheel):
         super(Martingale, self).__init__(table, wheel)  # call abc __init__
-        self.black = self.wheel.getOutcome('Black').pop()  # getOutcome returns a set
+        self.black = self.wheel.getOutcome(
+            'Black').pop()  # getOutcome returns a set
         self.lossCount = 0
 
     @property
     def betMultiple(self):
+        """doulbe bet after each loss"""
         return 2**self.lossCount
 
     def placeBets(self):
-        super(Martingale, self).__doc__ + """Bet amount doubles after each loss and resets after each win"""
-        amount = 10*self.betMultiple  # actually, not implemented
-        bet = rl.Bet(amount, self.black)  # instance of bet black
-        self._placeBets_helper(bet)
+        super(Martingale, self).__doc__ + \
+            """Bet amount doubles after each loss and resets after each win"""
+        amount = 10 * self.betMultiple  # actually, not implemented
+        bets = [rl.Bet(amount, self.black)]  # instance of bet black
+        self._placeBets_helper(bets)
 
     def win(self, bet):
         """Same as `Player`\\ 's win method but resets `lossCount`\\ ."""
@@ -169,7 +173,8 @@ class Game(object):
             player.placeBets()  # real work of placing bet is delegated to Player class
             winning_outcomes = self.wheel.next()
             for bet in player.table:
-                player.win(bet) if bet.outcome in winning_outcomes else player.lose(bet)
+                player.win(
+                    bet) if bet.outcome in winning_outcomes else player.lose(bet)
 
 
 if __name__ == '__main__':

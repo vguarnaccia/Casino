@@ -14,6 +14,7 @@ __license__ = "GPL"
 # http://docs.python-guide.org/en/latest/writing/logging/
 LOGGER = logging.getLogger(__name__)
 
+
 def get_args():
     '''This function parses and return arguments passed in'''
     # Assign description to the help doc
@@ -37,6 +38,7 @@ def get_args():
     return args
 
 # Gather our code in a main() function
+
 
 def main(args=None):
     """enters function"""
