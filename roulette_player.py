@@ -39,9 +39,9 @@ class Player(metaclass=ABCMeta):
         self.table = table
         self.wheel = wheel
 
-    def _placeBets_helper(self, bet):
-        self.stake -= bet.loseAmount()
-        self.table.placeBet(bet)
+    def _placeBets_helper(self, bets):
+        self.stake -= bets.loseAmount()
+        self.table.placeBet(bets)
 
     @abstractmethod
     def placeBets(self):
@@ -51,7 +51,7 @@ class Player(metaclass=ABCMeta):
         It uses :obj:`Table`\\ 's placeBet() to place that bet.
         """
         # bet = not implemented
-        # self._placeBets_helper(bet)
+        # self._placeBets_helper(bets)
         pass
 
     def win(self, bet):
@@ -63,6 +63,7 @@ class Player(metaclass=ABCMeta):
             bet (:obj:`Bet`): the bet which won.
         """
         self.stake += bet.winAmount()
+        self.table.clear()
 
     def lose(self, bet):
         """Notification from :obj:`Game` that the :obj:`Bet` was a loser.
@@ -70,7 +71,7 @@ class Player(metaclass=ABCMeta):
         Arg:
             bet (:obj:`Bet`): the bet which lost.
         """
-        return None
+        self.table.clear()
 
     def playing(self):
         """is player to active?"""
@@ -88,7 +89,7 @@ class Passenger57(Player):
     def __init__(self, table, wheel):
         super(Passenger57, self).__init__(table, wheel)  # call abc __init__
         self.stake = 250  # not specified
-        self.black = self.wheel.getOutcome('Black').pop() # getOutcome returns a set
+        self.black = self.wheel.getOutcome('Black').pop()  # getOutcome returns a set
 
     def placeBets(self):
         """Updates the ``table`` with the various bets.
@@ -111,6 +112,7 @@ class Martingale(Player):
 
     def __init__(self, table, wheel):
         super(Martingale, self).__init__(table, wheel)  # call abc __init__
+        self.black = self.wheel.getOutcome('Black').pop()  # getOutcome returns a set
         self.lossCount = 0
 
     @property
@@ -125,13 +127,13 @@ class Martingale(Player):
 
     def win(self, bet):
         """Same as `Player`\\ 's win method but resets `lossCount`\\ ."""
-        super(Martingale, self).win(bet)
         self.lossCount = 0
+        super(Martingale, self).win(bet)
 
     def lose(self, bet):
         """Same as `Player`\\ 's lose method but increments `lossCount`\\ ."""
-        super(Martingale, self).lose(bet)
         self.lossCount += 1
+        super(Martingale, self).lose(bet)
 
 
 class Game(object):

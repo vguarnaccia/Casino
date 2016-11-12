@@ -144,7 +144,6 @@ class test_BinBuilder(unittest.TestCase):
         self.assertTrue(self.wheel[29] == ans)
         self.assertEqual(len(self.wheel[37]), 0)
 
-
     def test_corner_bet(self):
         bin_nums = (0, 1, 15, 29, 37)
         bet = "_corner_bet"
@@ -310,6 +309,10 @@ class test_Table(unittest.TestCase):
                         'bar',
                         5)))
 
+    def test_clear(self):
+        self.table.clear()
+        self.assertFalse(self.table.bets)
+
     def tearDown(self):
         del self.bets, self.table
 
@@ -323,23 +326,31 @@ class test_Game(unittest.TestCase):
         # assuming test_rng_internal passed, self.wheel lands on 8, 36, 4, then 16.
         self.table = rl.Table(200, 5)
         self.game = rlp.Game(self.table, self.wheel)
-        self.passenger57 = rlp.Passenger57(self.table, self.wheel)
+        self.player = rlp.Passenger57(self.table, self.wheel)
 
     def tearDown(self):
-        del self.game, self.passenger57
+        del self.game, self.player
 
     def test_game_cycle(self):
         for _ in range(10):
-            self.game.cycle(self.passenger57)
+            self.game.cycle(self.player)
 
     def test_Passenger57(self):
         """integration test for :class:`Passenger57`"""
-        self.player = self.passenger57
-        expected_stake = [260, 250, 260, 240] #assuming initial stake is 250 and bet amount is 10.
+        self.player = rlp.Passenger57(self.table, self.wheel)
+        expected_stake = [260, 250, 260, 250]  # assuming initial stake is 250 and bet amount is 10.
         for i in range(4):
-            import pdb; pdb.set_trace()  # XXX BREAKPOINT
             self.game.cycle(self.player)
             self.assertEqual(self.player.stake, expected_stake[i])
+
+    def test_Martingale(self):
+        """integration test for :class:`Martingale`"""
+        self.player = rlp.Martingale(self.table, self.wheel)
+        expected_stake = [110, 100, 120, 110]  # assuming initial stake is 250 and bet amount is 10.
+        for i in range(4):
+            self.game.cycle(self.player)
+            self.assertEqual(self.player.stake, expected_stake[i])
+
 
 if __name__ == '__main__':
     unittest.main()

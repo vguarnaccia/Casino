@@ -244,7 +244,7 @@ class BinBuilder(object):
                 '_evenness_bet',
                 '_hight_bet',
                 '_five_bet'
-               }
+                }
         for bin_num in range(38):
             for bet in bets:
                 getattr(builder, bet)(wheel, bin_num)
@@ -367,7 +367,7 @@ class Table(object):
         else:
             self.bets = bets
 
-    def placeBet(self, bet):
+    def placeBet(self, bets):
         """Table to bet interface.
 
         Args:
@@ -376,7 +376,10 @@ class Table(object):
         Raise:
             InvalidBet: indicates bug in :obj:`Player`
         """
-        self.bets.append(bet)
+        try:
+            self.bets.extend(bets)
+        except TypeError:
+            self.bets.append(bets)
         self.isValid()
 
     def isValid(self):
@@ -393,6 +396,10 @@ class Table(object):
             return None
         else:
             raise InvalidBet
+
+    def clear(self):
+        """Remove `Bet`\ s once a :class:`Player` has won or lost."""
+        self.bets = []
 
     def __iter__(self):
         """Iterate over all bet in bets.
