@@ -1,2 +1,2 @@
 init:
-	./test_basic.py
+	python -m casino.test
