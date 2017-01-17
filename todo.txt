@@ -1,0 +1,6 @@
+Correct Makefile
+write readme
+finish roulette game
+add craps and blackjack
+write useful CLI
+develop GUI
