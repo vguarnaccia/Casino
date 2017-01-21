@@ -1,6 +1,10 @@
-Correct Makefile
-write readme
-finish roulette game
-add craps and blackjack
-write useful CLI
-develop GUI
+Finish roulette game
+Add craps and blackjack
+Reread guide and add more comments
+Add a v1 tag
+Refactor into something not stupid
+Add another tag
+Write useful CLI
+Develop GUI
+Add v2 tag
+Setup as a package
