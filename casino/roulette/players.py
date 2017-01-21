@@ -13,6 +13,7 @@ Todo:
 
 import logging
 from abc import ABCMeta, abstractmethod
+import statistics as stats
 
 from . import board as bd
 
@@ -67,7 +68,7 @@ class Player(metaclass=ABCMeta):
         self.stake += bet.winAmount()
         self.table.clear()
 
-    def lose(self, bet):
+    def lose(self):
         """Notification from :obj:`Game` that the :obj:`Bet` was a loser.
 
         Arg:
@@ -120,8 +121,7 @@ class Martingale(Player):
 
     def __init__(self, table, wheel):
         super(Martingale, self).__init__(table, wheel)  # call abc __init__
-        self.black = self.wheel.getOutcome(
-            'Black').pop()  # getOutcome returns a set
+        self.black = self.wheel.getOutcome('Black').pop()  # getOutcome returns a set
         self.lossCount = 0
 
     @property
@@ -141,13 +141,13 @@ class Martingale(Player):
         self.lossCount = 0
         super(Martingale, self).win(bet)
 
-    def lose(self, bet):
+    def lose(self):
         """Same as `Player`\\ 's lose method but increments `lossCount`\\ ."""
         self.lossCount += 1
-        super(Martingale, self).lose(bet)
+        super(Martingale, self).lose()
 
 
-class Game(object):
+class Game:
     """manages the sequence of actions that defines the game of Roulette
 
     This includes notifying the :obj:`Player` to place bets, spinning the :obj:`Wheel` and
@@ -183,27 +183,41 @@ class Game(object):
                 if bet.outcome in winning_outcomes:
                     player.win(bet)
                 else:
-                    player.lose(bet)
+                    player.lose()
 
 
 class Simulator:
     """Simulate the Roulette game with the `Player` class.
     Reports saw statistics on a number of sessions of play
 
-    Attributes:
+    Notes:
+        cycle:
+            A single cycle of betting and bet resolution.
+        session:
+            One or more cycles in which a player starts with a full stakes.
+            Player may decide to leave or may run out of money.
+        game:
+            Some games may have intermediate events between cycles and sessions.
+
+    Args:
         game (`Game`): The Game to simulate.
         player (`Player): The player and thus betting strategy.
+        initDuration (int, default 250): Length of simulation.
+        initStake (int, default 100): Initial money amount.
+        samples (int, default 50): Number of game cycles.
+
+    Attributes:
+        durations (list): list of lenghts of time the `Player` remained in the game.
+        maxima (list): list of maximum stakes for each `Player`.
+        See args.
     """
 
-    def __init__(self, game, player, initDuration=250, initStake=100,
-                 samples=50, durations=None, maxima=None):
+    def __init__(self, game, player, initDuration=250, initStake=100, samples=50):
         self.game = game
         self.player = player
         self.initDuration = initDuration
         self.initStake = initStake
         self.samples = samples
-        self.durations = [] if durations is None else durations
-        self.maxima = [] if maxima is None else maxima
 
     def session(self):
         """Execute a single game session.
@@ -211,6 +225,26 @@ class Simulator:
         Return:
             `list` of stake values.
         """
+        stakes = []
+        self.player.setStake(self.initStake)
+        self.player.setRounds(self.initDuration)
+        while self.player.playing:
+            self.game.cycle(self.player)
+            stakes.append(self.player.stake)
+        return stakes
+
+    def gather(self):
+        """Execute a number of sessions and collect statistics"""
+        duration = []
+        maxima = []
+        for _ in range(self.samples):
+            stakes = self.session()
+            self.duration.append(len(stakes))
+            self.maxima.apppend(max(stakes))
+        average_duration, stdev_of_duration = stats.mean(duration), stats.stdev(duration)
+        average_maxima, stdev_of_maxima = stats.mean(maxima), stats.stdev(maxima)
+        return (average_duration, stdev_of_duration), (average_maxima, stdev_of_maxima)
+
 
 
 if __name__ == '__main__':

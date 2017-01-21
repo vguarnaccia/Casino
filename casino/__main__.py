@@ -4,7 +4,7 @@
 
 Example:
     python -m casino
-    python -m casino.testi
+    python -m casino.test
 """
 
 import argparse
