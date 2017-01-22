@@ -10,6 +10,10 @@ Welcome to Casino's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   casino
+   casino.test
+   modules
+
 
 
 Indices and tables
