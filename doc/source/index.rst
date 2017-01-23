@@ -12,6 +12,7 @@ Welcome to Casino's documentation!
 
    casino
    casino.test
+   casino.roulette
    modules
 
 

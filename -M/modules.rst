@@ -1,7 +1,7 @@
-casino
+source
 ======
 
 .. toctree::
    :maxdepth: 4
 
-   casino
+   conf
