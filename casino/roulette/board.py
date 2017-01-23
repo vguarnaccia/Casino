@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """This module contains the business logic for the game of roulette. It is a solution to the
 roulette problems in `Building Skills in Object-Oriented Design`_. However, we more closely follow
-the `Google Python Style Guide`.
+the `Google Python Style Guide`_.
 
 This module contains two important classes:
 
@@ -11,7 +11,7 @@ This module contains two important classes:
 The game and player exist independently from casino table game.
 
 Todo:
-    * Go over  `Google Python Style Guide` and `Napoleon`_ examples
+    * Go over  `Google Python Style Guide`_ and `Napoleon`_ examples
     * reread instruction and document.
     * implement logger
 
@@ -34,11 +34,11 @@ from pprint import pprint
 LOGGER = logging.getLogger(__name__)
 
 
-class Outcome(object):
+class Outcome:
     """Store the name of a possible outcome and its odds
 
     Note:
-        Outcomes should be accessed via the :obj:`Wheel`\\ .
+        Outcomes should be accessed via the :obj:`Wheel`.
 
     Attributes:
         name (str): Name of the outcome
@@ -81,11 +81,11 @@ class Wheel:
         self.rng = random.Random()
 
     def addOutcome(self, number, outcome):
-        """Add outcomes to bin and maintain set of distinct outcomes
+        """Add outcomes to bin and maintain set of distinct outcomes.
 
         Args:
             bin (int): the bin index from 0 to 37 inclusive.
-            outcome (:obj:`Outcome) the :obj:`Outcome to add to this bin.
+            outcome (`Outcome`) the `Outcome` to add to this bin.
         """
         self.bins[number].add(outcome)
         self.all_outcomes.add(outcome)
@@ -119,16 +119,16 @@ class Bet:
 
     A player uses the wheel object's unique set of bets to place an bet with an amount.
 
-        Attributes:
-            amount (int): amount bet
-            outcome (Outcome): the :class:`Outcome` we're betting on"""
+    Attributes:
+        amount (int): amount bet
+        outcome (:obj:`Outcome`): the :class:`Outcome` we're betting on"""
 
     def __init__(self, amount, outcome):
         self.amount = amount
         self.outcome = outcome
 
     def winAmount(self):
-        """Uses the Outcome‘s winAmount to compute the amount won, given the amount of this bet.
+        """Uses the :obj:`Outcome`‘s winAmount to compute the amount won, given the amount of this bet.
         Note that the amount bet must also be added in.
         A 1:1 outcome (e.g. a bet on Red) pays the amount bet plus the amount won.
         """
@@ -156,7 +156,7 @@ class Bet:
 
 
 class InvalidBet(Exception):
-    """InvalidBet is raised when the Player attempts to place a bet which exceeds the table’s limit.
+    """InvalidBet is raised when the :obj:`Player` attempts to place a bet which exceeds the table’s limit.
     """
     pass
 

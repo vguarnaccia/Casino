@@ -2,7 +2,7 @@
 
 from .board import Outcome
 
-class BinBuilder(object):
+class BinBuilder:
     """builder for adding outcomes to bins in the wheel
 
     Note:
@@ -164,7 +164,12 @@ class BinBuilder(object):
 
     @staticmethod
     def buildBins(wheel):
-        """Builder to create all outcomes for bin with bin number"""
+        """Builder to create all outcomes for bin with bin number
+
+        Args:
+            wheel (:obj:`Wheel`): `Wheel` to be populated with outcomes.
+
+        """
         builder = BinBuilder()
         bets = {
             '_straight_bet',
@@ -182,5 +187,3 @@ class BinBuilder(object):
         for bin_num in range(38):
             for bet in bets:
                 getattr(builder, bet)(wheel, bin_num)
-
-

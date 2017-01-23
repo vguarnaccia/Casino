@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Player simulator for roulette that creates ``players`` to implement strategies.
+"""Player simulator for roulette that creates `Player` to implement strategies.
 It also allows the player to collect statistics and analyze their effectiveness
 
 Todo:
-    * Go over  `Google Python Style Guide` and `Napoleon`_ examples
+    * Go over  `Google Python Style Guide`_ and `Napoleon`_ examples
     * make sure backslashes in rst worked out properly.
     * build logger.
-    * `incorporate solution Q&A into doc.
-    <http://buildingskills.itmaybeahack.com/book/oodesign-3.1/html/roulette/solution.html#roul-ov-qanda-main>``:
+    * `incorporate solution Q&A into doc. <http://buildingskills.itmaybeahack.com/book/oodesign-3.1/html/roulette/solution.html#roul-ov-qanda-main>`_
+
 """
 
 import logging
@@ -201,7 +201,7 @@ class Simulator:
 
     Args:
         game (`Game`): The Game to simulate.
-        player (`Player): The player and thus betting strategy.
+        player (`Player`): The player and thus betting strategy.
         initDuration (int, default 250): Length of simulation.
         initStake (int, default 100): Initial money amount.
         samples (int, default 50): Number of game cycles.
