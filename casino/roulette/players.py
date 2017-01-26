@@ -26,12 +26,12 @@ class Player(metaclass=ABCMeta):
     """This is a base class for designing players.
 
     Note:
-        Subclass must implement `placeBets()` and may override `__init__`\\ .
+        Subclass must implement :meth:`.placeBets()` and may override `__init__`\.
 
     Attributes:
-        table (Table): The instance of `Table` that `Bet`\\ s are placed on.
-        wheel (Wheel): The instance of `Wheel` that contain allowable `Bet`\\ s.
-        stake (int, default 1000): the player's current stake.
+        table (:obj:`.Table`): The instance of :obj:`.Table` that :obj:`.Bet`\s are placed on.
+        wheel (:obj:`.Wheel`): The instance of :obj:`.Wheel` that contain allowable :obj:`.Bet`\s.
+        stake (int, default 1000): the :obj:`Player`\'s current stake.
         roundsToGo (int, default 100): the number of rounds to play.
     """
 
@@ -48,36 +48,39 @@ class Player(metaclass=ABCMeta):
 
     @abstractmethod
     def placeBets(self):
-        """Updates the ``table`` with the various bets.
+        """Updates the :attr:`table` with the various bets.
 
-        This version creates a :obj:`Bet` instance from the black Outcome.
-        It uses :obj:`Table`\\ 's placeBet() to place that bet.
+        This version creates a :obj:`.Bet` instance from the black Outcome.
+        It uses :obj:`.Table`\'s :meth:`.placeBet()` to place that bet.
         """
         # bet = not implemented
         # self._placeBets_helper(bets)
         pass
 
     def win(self, bet):
-        """Notification from :obj:`Game` that the :obj:`Bet` was a winner.
+        """Notification from :obj:`Game` that the :obj:`.Bet` was a winner.
 
-        The amount of money won is available via the winAmount() method of :obj:`Bet`\\ .
+        The amount of money won is available via the :meth:`.Bet.winAmount()` method.
 
-        Arg:
-            bet (:obj:`Bet`): the bet which won.
+        Args:
+            bet (:obj:`.Bet`): the :obj:`.Bet` which won.
         """
         self.stake += bet.winAmount()
         self.table.clear()
 
     def lose(self):
-        """Notification from :obj:`Game` that the :obj:`Bet` was a loser.
+        """Notification from :obj:`Game` that the :obj:`.Bet` was a loser.
 
-        Arg:
-            bet (:obj:`Bet`): the bet which lost.
+        Args:
+            bet (:obj:`.Bet`): the bet which lost.
         """
         self.table.clear()
 
     def playing(self):
-        """is player to active?"""
+        """Check if the :obj:`Player` stills wants to play.
+
+        Return:
+            bool"""
         return (self.roundsToGo > 0)
 
     def setStake(self, stake):
@@ -88,23 +91,22 @@ class Player(metaclass=ABCMeta):
 
 
 class Passenger57(Player):
-    """dead simple player that always bets on black and has infinite money.
+    """Dead simple player that always bets on black and has infinite money.
 
     Attributes:
-        table (Table): The :obj:`Table` instance on which bets are placed.
-        wheel (Wheel): The :obj:`Wheel` instance which defines all :obj:`Outcome`\\ s.
+        table (:obj:`.Table`): The :obj:`.Table` instance on which bets are placed.
+        wheel (:obj:`.Wheel`): The :obj:`.Wheel` instance which defines all :obj:`.Outcome`\s.
     """
 
     def __init__(self, table, wheel):
         super(Passenger57, self).__init__(table, wheel)  # call abc __init__
-        self.black = self.wheel.getOutcome(
-            'Black').pop()  # getOutcome returns a set
+        self.black = self.wheel.getOutcome('Black').pop()  # getOutcome returns a set
 
     def placeBets(self):
-        """Updates the ``table`` with the various bets.
+        """Updates the :attr:`table` with the various bets.
 
-        This version creates a :obj:`Bet` instance from the black Outcome.
-        It uses :obj:`Table`\\ 's placeBet() to place that bet.
+        This version creates a :obj:`.Bet` instance from the black Outcome.
+        It uses :obj:`.Table`\'s :meth:`.placeBet()` to place that bet.
         """
         amount = 10  # just a placeholder.
         bets = [bd.Bet(amount, self.black)]  # instance of bet black
@@ -112,7 +114,7 @@ class Passenger57(Player):
 
 
 class Martingale(Player):
-    """`Martingale` is a `Player` who doubles their bet on every loss and resets their bet on win.
+    """`Martingale` is a :obj:`Player` who doubles their bet on every loss and resets their bet on win.
 
     Attributes:
         lossCount (int): number of times to double the bet.
@@ -126,23 +128,22 @@ class Martingale(Player):
 
     @property
     def betMultiple(self):
-        """doulbe bet after each loss"""
+        """Double bet after each loss"""
         return 2**self.lossCount
 
     def placeBets(self):
-        super(Martingale, self).__doc__ + \
-            """Bet amount doubles after each loss and resets after each win"""
+        """Bet amount doubles after each loss and resets after each win"""
         amount = 10 * self.betMultiple  # actually, not implemented
         bets = [bd.Bet(amount, self.black)]  # instance of bet black
         self._placeBets_helper(bets)
 
     def win(self, bet):
-        """Same as `Player`\\ 's win method but resets `lossCount`\\ ."""
+        """Same as :obj:`Player`\'s win method but resets :attr:`lossCount`\."""
         self.lossCount = 0
         super(Martingale, self).win(bet)
 
     def lose(self):
-        """Same as `Player`\\ 's lose method but increments `lossCount`\\ ."""
+        """Same as :obj:`Player`\'s :meth:`lose` method but increments :attr:`lossCount`\."""
         self.lossCount += 1
         super(Martingale, self).lose()
 
@@ -150,13 +151,13 @@ class Martingale(Player):
 class Game:
     """manages the sequence of actions that defines the game of Roulette
 
-    This includes notifying the :obj:`Player` to place bets, spinning the :obj:`Wheel` and
-    resolving the :obj:`Bet`\\ s actually present on the Table.
+    This includes notifying the :obj:`Player` to place bets, spinning the :obj:`.Wheel` and
+    resolving the :obj:`.Bet`\s actually present on the :obj:`.Table`.
 
     Attributes:
-        table (:obj:`Table`): the :obj:`Table` which contains the :obj:`Bet`\\ s
-            placed by :obj:`Player`\\ .
-        wheel (:obj:`Wheel`): The :obj:`Wheel` that returns a randomly selected :obj:`Bin`\\ .
+        table (:obj:`.Table`): the :obj:`.Table` which contains the :obj:`.Bet`\s
+            placed by :obj:`Player`\.
+        wheel (:obj:`.Wheel`): The :obj:`.Wheel` that returns a randomly selected :obj:`.Bin`\.
     """
 
     def __init__(self, table, wheel):
@@ -167,12 +168,12 @@ class Game:
         """Executes a single cycle of play.
 
         Cycle:
-            1. call the :obj:`Player`\\ 's placeBets() to get bet.
-            2. call the :obj:`Wheel`\\ 's next() to get winning :obj:`Bin`\\ .
-            3. iterate over :obj:`Table`\\ 's :obj:`Bet`\\ s.
-            4. call the :obj:`Player`\\ 's win() or lose() method.
+            1. call the :meth:`Player.placeBets()` to get bet.
+            2. call the :obj:`.Wheel`\'s :meth:`.next()` to get winning :obj:`.Bin`\.
+            3. iterate over :obj:`.Table`\'s :obj:`.Bet`\s.
+            4. call the :meth:`Player.win()` or :meth:`Player.lose()` method.
 
-        Arg:
+        Args:
             player (:obj:`Player`): the individual player that places bets,
                 receives winnings and pays losses.
         """
@@ -187,7 +188,7 @@ class Game:
 
 
 class Simulator:
-    """Simulate the Roulette game with the `Player` class.
+    """Simulate the Roulette game with the :obj:`Player` class.
     Reports saw statistics on a number of sessions of play
 
     Notes:
@@ -200,15 +201,15 @@ class Simulator:
             Some games may have intermediate events between cycles and sessions.
 
     Args:
-        game (`Game`): The Game to simulate.
-        player (`Player`): The player and thus betting strategy.
+        game (:obj:`Game`): The Game to simulate.
+        player (:obj:`Player`): The player and thus betting strategy.
         initDuration (int, default 250): Length of simulation.
         initStake (int, default 100): Initial money amount.
         samples (int, default 50): Number of game cycles.
 
     Attributes:
-        durations (list): list of lenghts of time the `Player` remained in the game.
-        maxima (list): list of maximum stakes for each `Player`.
+        durations (list): list of lenghts of time the :obj:`Player` remained in the game.
+        maxima (list): list of maximum stakes for each :obj:`Player`.
         See args.
     """
 

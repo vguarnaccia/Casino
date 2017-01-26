@@ -3,11 +3,11 @@
 from .board import Outcome
 
 class BinBuilder:
-    """builder for adding outcomes to bins in the wheel
+    """builder for adding outcomes to bins in the :obj:`.Wheel`
 
     Note:
         This class is not pythonic and could be written much better.
-        It contains a static method called buildBins which populates all the bins in a :obj:`Wheel`.
+        It contains a static method called buildBins which populates all the bins in a :obj:`.Wheel`.
 
     Examples:
         >>> wheel = Wheel()
@@ -167,7 +167,7 @@ class BinBuilder:
         """Builder to create all outcomes for bin with bin number
 
         Args:
-            wheel (:obj:`Wheel`): `Wheel` to be populated with outcomes.
+            wheel (:obj:`.Wheel`): :obj:`.Wheel` to be populated with outcomes.
 
         """
         builder = BinBuilder()

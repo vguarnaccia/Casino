@@ -51,7 +51,7 @@ templates_path = ['.templates']
 source_suffix = '.rst'
 
 # The master toctree document.
-master_doc = 'casino'
+master_doc = 'modules'
 
 # General information about the project.
 project = 'Casino'

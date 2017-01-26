@@ -35,14 +35,14 @@ LOGGER = logging.getLogger(__name__)
 
 
 class Outcome:
-    """Store the name of a possible outcome and its odds
+    """Store the name of a possible outcome and its odds.
 
     Note:
         Outcomes should be accessed via the :obj:`Wheel`.
 
     Attributes:
         name (str): Name of the outcome
-        odds (int): Denominator for odds, i.e. odds of 17:1 means Odds = 17
+        odds (int): Denominator for odds, i.e. odds of 17:1 means ``odds`` = 17
     """
 
     def __init__(self, name, odds):
@@ -85,7 +85,7 @@ class Wheel:
 
         Args:
             bin (int): the bin index from 0 to 37 inclusive.
-            outcome (`Outcome`) the `Outcome` to add to this bin.
+            outcome (:obj:`Outcome`) the `Outcome` to add to this bin.
         """
         self.bins[number].add(outcome)
         self.all_outcomes.add(outcome)
@@ -93,11 +93,11 @@ class Wheel:
     def getOutcome(self, name):
         """get all outcomes containing ``name``
 
-        Arg:
+        Args:
             name (str): name of desired outcomes, by partial match, case insensitive.
 
         Return:
-            Set of all outcomes matching ``name``.
+            set: all outcomes matching ``name``.
         """
         return {oc for oc in self.all_outcomes if name.casefold()
                 in oc.name.casefold()}
@@ -106,7 +106,7 @@ class Wheel:
         """Select bin from bins
 
         Return:
-            bin (:obj:`Bin`): random bin from wheel.
+            :obj:`Bin`: random bin from wheel.
         """
         return self.rng.choice(self.bins)
 
@@ -121,14 +121,15 @@ class Bet:
 
     Attributes:
         amount (int): amount bet
-        outcome (:obj:`Outcome`): the :class:`Outcome` we're betting on"""
+        outcome (:obj:`Outcome`): the :obj:`Outcome` we're betting on
+    """
 
     def __init__(self, amount, outcome):
         self.amount = amount
         self.outcome = outcome
 
     def winAmount(self):
-        """Uses the :obj:`Outcome`‘s winAmount to compute the amount won, given the amount of this bet.
+        """Uses the :obj:`Outcome`'s :meth:`winAmount` to compute the amount won, given the amount of this bet.
         Note that the amount bet must also be added in.
         A 1:1 outcome (e.g. a bet on Red) pays the amount bet plus the amount won.
         """
@@ -136,6 +137,7 @@ class Bet:
 
     def loseAmount(self):
         """returns the amount bet as the amount lost.
+
         This is the cost of placing the bet."""
         return self.amount
 
@@ -171,13 +173,13 @@ class Table:
 
     Attributes:
         limit (int): This is the table limit.
-        The sum of the bets from a Player must be less than or equal to this limit.
+            The sum of the bets from a Player must be less than or equal to this limit.
 
         minimum (int): This is the table minimum.
-        Each individual bet from a Player must be greate than this limit.
+            Each individual bet from a Player must be greate than this limit.
 
-        bets (:obj:`list` of :obj:`Bet`): This is a list of the Bets currently active.
-        These will result in either wins or losses to the Player.
+        bets (:obj:`list` of :obj:`Bet`\s): This is a list of the Bets currently active.
+            These will result in either wins or losses to the Player.
     """
 
     def __init__(self, limit, minimum, bets=None):
@@ -192,10 +194,10 @@ class Table:
         """Table to bet interface.
 
         Args:
-            bet (:obj:`Bet`): A Bet instance to be added to the table.
+            bet (:obj:`Bet`): A :obj:`Bet` instance to be added to the table.
 
-        Raise:
-            InvalidBet: indicates bug in :obj:`Player`
+        Raises:
+            :obj:`InvalidBet`: indicates bug in :obj:`.Player`
         """
         try:
             self.bets.extend(bets)
@@ -206,7 +208,8 @@ class Table:
     def isValid(self):
         """Check table limit rule.
 
-        Raise:	InvalidBet if the bets don’t pass the table limit rules.
+        Raises:
+            :obj:`InvalidBet`: if the bets don’t pass the table limit rules.
 
         Applies the table-limit rules:
 
@@ -219,7 +222,7 @@ class Table:
             raise InvalidBet
 
     def clear(self):
-        """Remove `Bet`\\ s once a :class:`Player` has won or lost."""
+        """Remove :obj:`Bet`\s once a :obj:`.Player` has won or lost."""
         self.bets = []
 
     def __iter__(self):
