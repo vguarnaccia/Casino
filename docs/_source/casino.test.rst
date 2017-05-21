@@ -1,11 +1,11 @@
-casino.test package
-===================
+casino\.test package
+====================
 
 Submodules
 ----------
 
-casino.test.test_roulette module
---------------------------------
+casino\.test\.test\_roulette module
+-----------------------------------
 
 .. automodule:: casino.test.test_roulette
     :members:

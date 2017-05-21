@@ -6,6 +6,8 @@ Subpackages
 
 .. toctree::
 
+    casino.blackjack
+    casino.craps
     casino.roulette
     casino.test
 
