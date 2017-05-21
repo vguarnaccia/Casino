@@ -2,6 +2,9 @@
 Casino
 ======
 
+.. image:: https://travis-ci.org/vguarnaccia/Casino.svg?branch=master
+    :target: https://travis-ci.org/vguarnaccia/Casino
+
 This package is and exercise in object oriented design, unittest, and documentation inspired heavily by Steven F. Lott's `Building Skills in Object-Oriented Design. <http://buildingskills.itmaybeahack.com/oodesign.html>`_ I also intend to use it as template to use as an example of setting up a package. This README should be considered a **stub** for now.
 
 .. todo:
