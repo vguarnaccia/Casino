@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from builtins import zip
+from builtins import range
 import unittest
 from ..roulette import board as bd
 from ..roulette import players as ply
@@ -74,7 +76,7 @@ class test_Wheel(unittest.TestCase):
                             'even': 1,
                             'high': 1,
                             'low': 1}
-        for name, uniq_num in outcome_quantity.items():
+        for name, uniq_num in list(outcome_quantity.items()):
             self.assertEqual(len(self.wheel.getOutcome(name)), uniq_num)
 
     def tearDown(self):

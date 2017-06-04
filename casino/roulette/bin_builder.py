@@ -1,8 +1,10 @@
 """This module contains the BinBuilder class. Frankly, this class should just be turned into a module."""
 
+from builtins import range
+from builtins import object
 from .board import Outcome
 
-class BinBuilder:
+class BinBuilder(object):
     """builder for adding outcomes to bins in the :obj:`.Wheel`
 
     Note:
@@ -52,7 +54,7 @@ class BinBuilder:
                              possible_pairs['up'],
                              possible_pairs['down'])
                 elif bin_num % 3 == 2:
-                    pairs = possible_pairs.values()
+                    pairs = list(possible_pairs.values())
                 elif bin_num % 3 == 0:
                     pairs = (possible_pairs['left'],
                              possible_pairs['up'],
@@ -94,7 +96,7 @@ class BinBuilder:
                     pairs = (possible_pairs['right-down'],
                              possible_pairs['right-up'])
                 elif bin_num % 3 == 2:
-                    pairs = possible_pairs.values()
+                    pairs = list(possible_pairs.values())
                 elif bin_num % 3 == 0:
                     pairs = (possible_pairs['left-down'],
                              possible_pairs['left-up'])

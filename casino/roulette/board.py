@@ -25,6 +25,8 @@ Todo:
     http://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html
 """
 
+from builtins import range
+from builtins import object
 import random
 import logging
 from pprint import pprint
@@ -34,7 +36,7 @@ from pprint import pprint
 LOGGER = logging.getLogger(__name__)
 
 
-class Outcome:
+class Outcome(object):
     """Store the name of a possible outcome and its odds.
 
     Note:
@@ -71,7 +73,7 @@ class Bin(set):
     """Extension to built-in set class and builder to fill in outcomes for all bin numbers"""
 
 
-class Wheel:
+class Wheel(object):
     """Container for 38 bins and PRNG to select one at random"""
 
     def __init__(self):
@@ -102,7 +104,7 @@ class Wheel:
         return {oc for oc in self.all_outcomes if name.casefold()
                 in oc.name.casefold()}
 
-    def next(self):
+    def __next__(self):
         """Select bin from bins
 
         Return:
@@ -114,7 +116,7 @@ class Wheel:
         return self.bins[index]
 
 
-class Bet:
+class Bet(object):
     """Player to Outcome API.
 
     A player uses the wheel object's unique set of bets to place an bet with an amount.
@@ -163,7 +165,7 @@ class InvalidBet(Exception):
     pass
 
 
-class Table:
+class Table(object):
     """Table contains all the Bets created by the Player.
     A table also has a betting limit, and the sum of all of a player’s bets must be
     less than or equal to this limit. We assume a single Player in the simulation.

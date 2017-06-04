@@ -11,6 +11,8 @@ Todo:
 
 """
 
+from builtins import range
+from builtins import object
 import logging
 from abc import ABCMeta, abstractmethod
 import statistics as stats
@@ -148,7 +150,7 @@ class Martingale(Player):
         super(Martingale, self).lose()
 
 
-class Game:
+class Game(object):
     """manages the sequence of actions that defines the game of Roulette
 
     This includes notifying the :obj:`Player` to place bets, spinning the :obj:`.Wheel` and
@@ -179,7 +181,7 @@ class Game:
         """
         if player.playing:
             player.placeBets()  # real work of placing bet is delegated to Player class
-            winning_outcomes = self.wheel.next()
+            winning_outcomes = next(self.wheel)
             for bet in player.table:
                 if bet.outcome in winning_outcomes:
                     player.win(bet)
@@ -187,7 +189,7 @@ class Game:
                     player.lose()
 
 
-class Simulator:
+class Simulator(object):
     """Simulate the Roulette game with the :obj:`Player` class.
     Reports saw statistics on a number of sessions of play
 
