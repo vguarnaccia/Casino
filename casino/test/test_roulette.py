@@ -1,6 +1,7 @@
-#!/usr/bin/env python3
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
 from builtins import zip
 from builtins import range
 import unittest
@@ -54,28 +55,33 @@ class test_Wheel(unittest.TestCase):
         self.wheel = bd.Wheel()
 
     def test_rng_internal(self):
-        first_ten = [8, 36, 4, 16, 7, 31, 28, 30, 24, 13]
+        import sys
+        if sys.version_info > (3,):
+            first_ten = [8, 36, 4, 16, 7, 31, 28, 30, 24, 13]
+        else:
+            first_ten = [5, 32, 29, 9, 18, 17, 24, 29, 3, 1]
         self.wheel.rng.seed(1)  # fixed seed
-        self.assertEqual([self.wheel.rng.randint(0, 37)
-                          for _ in range(10)], first_ten)
+        self.assertEqual([self.wheel.rng.randint(0, 37) for _ in range(10)], first_ten)
 
     def test_getOutcome(self):
         """results depends on successful binBuilder"""
         bb.BinBuilder.buildBins(self.wheel)
-        outcome_quantity = {'straight': 38,
-                            'split': 57,
-                            'street': 12,
-                            'corner': 22,
-                            '00-0-1-2-3': 1,
-                            'line': 6,
-                            'dozen': 3,
-                            'column': 3,
-                            'red': 1,
-                            'black': 1,
-                            'odd': 1,
-                            'even': 1,
-                            'high': 1,
-                            'low': 1}
+        outcome_quantity = {
+            'straight': 38,
+            'split': 57,
+            'street': 12,
+            'corner': 22,
+            '00-0-1-2-3': 1,
+            'line': 6,
+            'dozen': 3,
+            'column': 3,
+            'red': 1,
+            'black': 1,
+            'odd': 1,
+            'even': 1,
+            'high': 1,
+            'low': 1
+        }
         for name, uniq_num in list(outcome_quantity.items()):
             self.assertEqual(len(self.wheel.getOutcome(name)), uniq_num)
 
