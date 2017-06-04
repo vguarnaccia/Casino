@@ -1,8 +1,9 @@
 """This module contains the BinBuilder class. Frankly, this class should just be turned into a module."""
 
-from builtins import range
-from builtins import object
+from builtins import object, range
+
 from .board import Outcome
+
 
 class BinBuilder(object):
     """builder for adding outcomes to bins in the :obj:`.Wheel`

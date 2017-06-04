@@ -25,10 +25,9 @@ Todo:
     http://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html
 """
 
-from builtins import range
-from builtins import object
-import random
 import logging
+import random
+from builtins import object, range
 from pprint import pprint
 
 # for tips on logging go to

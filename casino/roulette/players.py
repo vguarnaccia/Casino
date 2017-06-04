@@ -11,12 +11,10 @@ Todo:
 
 """
 
-from builtins import next
-from builtins import range
-from builtins import object
 import logging
-from abc import ABCMeta, abstractmethod
 import statistics as stats
+from abc import ABCMeta, abstractmethod
+from builtins import next, object, range
 
 from . import board as bd
 
