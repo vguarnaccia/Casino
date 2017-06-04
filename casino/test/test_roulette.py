@@ -2,13 +2,16 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-from builtins import zip
-from builtins import range
+
+import sys
 import unittest
+from builtins import range, zip
+
+from ..roulette import bin_builder as bb
 from ..roulette import board as bd
 from ..roulette import players as ply
-from ..roulette import bin_builder as bb
 
+PY3 = sys.version_info > (3,)
 
 class test_Outcome_Class(unittest.TestCase):
 
@@ -55,11 +58,7 @@ class test_Wheel(unittest.TestCase):
         self.wheel = bd.Wheel()
 
     def test_rng_internal(self):
-        import sys
-        if sys.version_info > (3,):
-            first_ten = [8, 36, 4, 16, 7, 31, 28, 30, 24, 13]
-        else:
-            first_ten = [5, 32, 29, 9, 18, 17, 24, 29, 3, 1]
+        first_ten = [8, 36, 4, 16, 7, 31, 28, 30, 24, 13] if PY3 else [5, 32, 29, 9, 18, 17, 24, 29, 3, 1]
         self.wheel.rng.seed(1)  # fixed seed
         self.assertEqual([self.wheel.rng.randint(0, 37) for _ in range(10)], first_ten)
 
@@ -349,7 +348,7 @@ class test_Game(unittest.TestCase):
         """integration test for :class:`Passenger57`"""
         self.player = ply.Passenger57(self.table, self.wheel)
         # assuming initial stake is 250 and bet amount is 10.
-        expected_stake = [1010, 1000, 1010, 1000]
+        expected_stake = [1010, 1000, 1010, 1000] if PY3 else [990, 1000, 990, 1000]
         for i in range(4):
             self.game.cycle(self.player)
             self.assertEqual(self.player.stake, expected_stake[i])
@@ -358,7 +357,7 @@ class test_Game(unittest.TestCase):
         """integration test for :class:`Martingale`"""
         self.player = ply.Martingale(self.table, self.wheel)
         # assuming initial stake is 250 and bet amount is 10.
-        expected_stake = [1010, 1000, 1020, 1010]
+        expected_stake = [1010, 1000, 1020, 1010] if PY3 else [990, 1000, 1020, 990]
         for i in range(4):
             self.game.cycle(self.player)
             self.assertEqual(self.player.stake, expected_stake[i])
