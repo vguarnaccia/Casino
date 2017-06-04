@@ -11,6 +11,7 @@ Todo:
 
 """
 
+from builtins import next
 from builtins import range
 from builtins import object
 import logging
@@ -24,7 +25,8 @@ from . import board as bd
 LOGGER = logging.getLogger(__name__)
 
 
-class Player(metaclass=ABCMeta):
+ABC = ABCMeta('ABC', (object,), {}) # compatible with Python 2 *and* 3
+class Player(ABC):
     """This is a base class for designing players.
 
     Note:

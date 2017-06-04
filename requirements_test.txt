@@ -1,4 +1,3 @@
 # Packages required for testing but not use
-future
 coverage
 coveralls
