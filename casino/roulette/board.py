@@ -101,8 +101,7 @@ class Wheel(object):
         Return:
             set: all outcomes matching ``name``.
         """
-        return {oc for oc in self.all_outcomes if name.casefold()
-                in oc.name.casefold()}
+        return {oc for oc in self.all_outcomes if name.lower() in oc.name.lower()}
 
     def __next__(self):
         """Select bin from bins
