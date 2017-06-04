@@ -5,9 +5,6 @@ Casino
 .. image:: https://travis-ci.org/vguarnaccia/Casino.svg?branch=master
     :target: https://travis-ci.org/vguarnaccia/Casino
 
-.. image:: https://coveralls.io/repos/github/vguarnaccia/Casino/badge.svg?branch=master
-    :target: https://coveralls.io/github/vguarnaccia/Casino?branch=master
-
 This package is and exercise in object oriented design, unittest, and documentation inspired heavily by Steven F. Lott's `Building Skills in Object-Oriented Design. <http://buildingskills.itmaybeahack.com/oodesign.html>`_ I also intend to use it as template to use as an example of setting up a package. This README should be considered a **stub** for now.
 
 .. todo:
