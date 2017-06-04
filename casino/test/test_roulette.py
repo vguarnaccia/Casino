@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import unittest
+
+from ..roulette import bin_builder as bb
 from ..roulette import board as bd
 from ..roulette import players as ply
-from ..roulette import bin_builder as bb
 
 
 class test_Outcome_Class(unittest.TestCase):

@@ -2,6 +2,7 @@
 
 from .board import Outcome
 
+
 class BinBuilder:
     """builder for adding outcomes to bins in the :obj:`.Wheel`
 

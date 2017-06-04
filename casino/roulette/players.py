@@ -12,8 +12,8 @@ Todo:
 """
 
 import logging
-from abc import ABCMeta, abstractmethod
 import statistics as stats
+from abc import ABCMeta, abstractmethod
 
 from . import board as bd
 

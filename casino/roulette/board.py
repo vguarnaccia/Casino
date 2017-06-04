@@ -25,8 +25,8 @@ Todo:
     http://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html
 """
 
-import random
 import logging
+import random
 from pprint import pprint
 
 # for tips on logging go to
