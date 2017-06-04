@@ -6,6 +6,7 @@ Example:
     python -m casino
     python -m casino.test
 """
+from __future__ import unicode_literals
 
 import argparse
 import logging

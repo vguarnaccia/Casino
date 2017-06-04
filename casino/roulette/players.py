@@ -10,6 +10,7 @@ Todo:
     * `incorporate solution Q&A into doc. <http://buildingskills.itmaybeahack.com/book/oodesign-3.1/html/roulette/solution.html#roul-ov-qanda-main>`_
 
 """
+from __future__ import unicode_literals
 
 from builtins import next
 from builtins import range

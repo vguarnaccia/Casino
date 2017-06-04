@@ -1,4 +1,5 @@
 """This module contains the BinBuilder class. Frankly, this class should just be turned into a module."""
+from __future__ import unicode_literals
 
 from builtins import range
 from builtins import object

@@ -24,6 +24,7 @@ Todo:
 .. _Napoleon:
     http://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html
 """
+from __future__ import unicode_literals
 
 from builtins import range
 from builtins import object
@@ -101,8 +102,8 @@ class Wheel(object):
         Return:
             set: all outcomes matching ``name``.
         """
-        return {oc for oc in self.all_outcomes if name.casefold()
-                in oc.name.casefold()}
+        return {oc for oc in self.all_outcomes if name.lower()
+                in oc.name.lower()}
 
     def __next__(self):
         """Select bin from bins
